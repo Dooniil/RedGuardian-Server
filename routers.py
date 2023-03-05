@@ -1,12 +1,14 @@
+import asyncio
+
 from fastapi import APIRouter
 from models.Task import Task
-from controllers import api_controller
-
+from src.interact_with_controller import get_response_from_controller
 
 api_router = APIRouter(prefix='/api')
 
 
-@api_router.post('/tasks')
-async def create_task(task: Task):
-    api_controller.send_data(task)
-    return {'status': 'OK'}
+@api_router.get('/some')
+async def get_some():
+    task = asyncio.create_task(get_response_from_controller())
+    response = await task
+    return response
