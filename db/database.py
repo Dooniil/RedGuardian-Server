@@ -1,8 +1,8 @@
 import json
 from os import getcwd, sep
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import text
 
 
 class AsyncDatabaseSession:
@@ -42,12 +42,18 @@ class AsyncDatabaseSession:
         with open(path, 'r') as file:
             self.conn_info = json.loads(file.read())
 
+    async def check_connection(self) -> None:
+        try:
+            await self.execute(text('SELECT 1'))
+        except ConnectionRefusedError as e:
+            print('Connection to DB has been failed... \nRestart program')
+
     async def init(self):
         self.__get_conn_info()
         user, password, host, port, name = self.conn_info
         self._db_url = f"postgresql+asyncpg://{user}:{password}@" \
                        f"{host}:{port}/{name}"
-        self._engine = create_async_engine(self._db_url, echo=True,)
+        self._engine = create_async_engine(self._db_url, echo=True)
         self._session = sessionmaker(self._engine, expire_on_commit=False, class_=AsyncSession)()
 
 

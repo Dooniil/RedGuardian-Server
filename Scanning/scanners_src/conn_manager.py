@@ -2,7 +2,6 @@ import asyncio
 import json
 import os
 
-from cryptography.hazmat.primitives import serialization
 from singleton_decorator import singleton
 
 
@@ -16,24 +15,22 @@ class ConnectionManager:
         with open(path_private, "rb") as key_file:
             self.private_key = key_file.read()
 
-    async def __check_conn(self, conn_data: dict, key: str | int) -> None:
-        try:
-            r, w = await asyncio.open_connection(conn_data[0], conn_data[1])
-            w.close()
-            await w.wait_closed()
-        except Exception as e:
-            print(e)
-            self.scanner_active_connections.pop(key)
+    async def check_conn(self) -> None:
 
-    async def periodic_check_conn(self):
-        while True:
-            print(self.scanner_active_connections)
-            if self.scanner_active_connections:
-                tasks_check_conn = [asyncio.create_task(self.__check_conn(conn_data, key))
-                                    for key, conn_data in self.scanner_active_connections.items()]
+        async def ping(addr, port, key: str | int) -> None:
+            try:
+                r, w = await asyncio.open_connection(addr, port)
+                w.close()
+                await w.wait_closed()
+            except Exception as e:
+                print(e)
+                self.scanner_active_connections.pop(key)
 
-                _, _ = await asyncio.wait(tasks_check_conn)
-            await asyncio.sleep(10)
+        if self.scanner_active_connections:
+            tasks_check_conn = [asyncio.create_task(ping(conn_data[0], conn_data[1], key))
+                                for key, conn_data in self.scanner_active_connections.items()]
+
+            await asyncio.wait(tasks_check_conn)
 
     @property
     def list(self):
@@ -43,16 +40,25 @@ class ConnectionManager:
     def names_scanners(self):
         return self.scanner_active_connections.keys()
 
-    async def add_connection(self, name_scanner: str | int, conn_info: tuple):
-        self.scanner_active_connections[name_scanner] = conn_info
-        await self.send_key(conn_info)
+    async def add_connection(self, name_scanner: str | int, addr: str, port: int) -> bool:
+        await asyncio.wait([asyncio.create_task(self.check_conn())])
+        if len(self.scanner_active_connections.keys()) + 1 <= 2:
+            self.scanner_active_connections[name_scanner] = (addr, port)
+            return True
+        else:
+            print('Too much connections')
+            return False
 
-    async def send_key(self, conn_data: tuple) -> None:
+    async def send_key(self, addr: str, port: int) -> None:
         try:
-            r, w = await asyncio.open_connection(conn_data[0], conn_data[1])
+            r, w = await asyncio.open_connection(addr, port)
 
-            w.write(self.private_key)
+            request = json.dumps(
+                {'type': 'key', 'key': self.private_key.decode(encoding="raw_unicode_escape")}
+            ).encode()
+            w.write(request)
             await w.drain()
+
             response = await r.read(1536)
 
             if response != b'1':
@@ -64,7 +70,7 @@ class ConnectionManager:
         except Exception as e:
             print(e)
 
-    def remove_connection(self, name_scanner: str | int):
+    async def remove_connection(self, name_scanner: str | int):
         self.scanner_active_connections.pop(name_scanner)
 
 

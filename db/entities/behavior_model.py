@@ -1,4 +1,4 @@
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, update
 from db.database import async_db_session
 
 
@@ -22,6 +22,10 @@ class BehaviorModel:
         return result.first()
 
     @classmethod
+    async def get_filter(cls, *args):
+        raise NotImplementedError
+
+    @classmethod
     async def get_all(cls):
         stmt = select(cls)
         instances = await async_db_session.execute(stmt).all()
@@ -30,6 +34,16 @@ class BehaviorModel:
     @classmethod
     async def delete(cls, pk):
         stmt = delete(cls).where(cls.id == pk)
+        await async_db_session.execute(stmt)
+        try:
+            await async_db_session.commit()
+        except Exception:
+            await async_db_session.rollback()
+            raise
+
+    @classmethod
+    async def update(cls, pk, new_data: dict):
+        stmt = update(cls).where(cls.id == pk).values(**new_data)
         await async_db_session.execute(stmt)
         try:
             await async_db_session.commit()

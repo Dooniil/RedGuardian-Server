@@ -19,8 +19,7 @@ def encrypt(password: bytes) -> bytes:
             label=None
         )
     )
-    return encrypted_password
-
+    return base64.b64encode(encrypted_password)
 
 # def decrypt(password: str) -> str:
 #     path_private = os.sep.join([os.getcwd(), 'RestAPI', 'encry_src', 'private.pem'])

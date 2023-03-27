@@ -1,10 +1,9 @@
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 import os
-import json
 
 
-def gen_keys(size: int) -> str:
+def gen_keys(size: int) -> dict:
     #  Генерация ключей без пароля
     private_key: rsa.RSAPrivateKey = rsa.generate_private_key(public_exponent=65537, key_size=size)
     private_bytes = private_key.private_bytes(
