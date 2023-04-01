@@ -36,3 +36,11 @@ def encrypt(password: bytes) -> bytes:
 #         )
 #     )
 #     return decrypted_password.decode('latin-1')
+
+
+def get_private_key():
+    path_private = os.sep.join([os.getcwd(), 'RestAPI', 'encry_src', 'private.pem'])
+
+    with open(path_private, "rb") as key_file:
+        private_key = key_file.read()
+    return private_key

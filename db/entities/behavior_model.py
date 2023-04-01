@@ -26,10 +26,16 @@ class BehaviorModel:
         raise NotImplementedError
 
     @classmethod
+    async def get_by_name(cls, name: str):
+        stmt = select(cls).where(cls.name.ilike(name))
+        result = await async_db_session.execute(stmt)
+        return result.first()
+
+    @classmethod
     async def get_all(cls):
         stmt = select(cls)
-        instances = await async_db_session.execute(stmt).all()
-        return instances
+        result = await async_db_session.execute(stmt)
+        return result.all()
 
     @classmethod
     async def delete(cls, pk):

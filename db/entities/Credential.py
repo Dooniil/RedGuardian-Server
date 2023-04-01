@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, TIMESTAMP, ForeignKey, LargeBinary, select
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, LargeBinary, select
 from sqlalchemy.sql import func, cast
 from sqlalchemy.orm import relationship
 from db.database import async_db_session
@@ -21,13 +21,13 @@ class Credential(async_db_session.base, BehaviorModel):
     @property
     def repr(self):
         return {
-            'id': {self.id},
-            'name': {self.name},
+            'id': self.id,
+            'name': self.name,
             'login': self.login,
             'password': 'encrypted',
-            'platform_id': {self.platform_id},
-            'created_at': {self.created_at},
-            'updated_at': {self.updated_at}
+            'platform_id': self.platform_id,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
         }
 
     @classmethod
