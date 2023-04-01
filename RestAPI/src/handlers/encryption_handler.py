@@ -1,6 +1,7 @@
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 import os
+from RestAPI.src.encryption import EncyptionManager
 
 
 def gen_keys(size: int) -> dict:
@@ -29,9 +30,11 @@ def gen_keys(size: int) -> dict:
     try:
         with open(path_public, 'wb') as f_pub:
             f_pub.write(public_bytes)
+        EncyptionManager.get_public_key()
 
         with open(path_private, 'wb') as f_pr:
             f_pr.write(private_bytes)
+        EncyptionManager.get_private_key()
 
     except Exception as e:
         return {'status': 'Error', 'error_msg': e}

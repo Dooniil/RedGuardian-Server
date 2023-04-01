@@ -4,18 +4,17 @@ from db.database import async_db_session
 from Scanning.src.server import run_server
 from fastapi import FastAPI
 from RestAPI.routers.list_routers import routers
-from RestAPI.src.start_loading import get_list_scanners
+from RestAPI.src.start_loading import start_funcs
 from address import choose_host
 
-# creating and connecting routers to a FastAPI app
 app = FastAPI(title='RedGuardian REST API')
 for router in routers:
     app.include_router(router)
 
 
 @app.on_event('startup')
-async def preload():
-    await get_list_scanners()
+async def startup():
+    await start_funcs()
 
 
 # connecting to DB, start REST API and Controller

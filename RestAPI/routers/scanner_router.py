@@ -1,15 +1,8 @@
 from fastapi import APIRouter
 from RestAPI.src.handlers.scanner_handler import ScannerHandler
-from RestAPI.models.ScannerModel import ScannerModel
 
 
 scanner_router = APIRouter(prefix='/scanners', tags=['Scanners'])
-
-
-# # Add existed scanner to DB
-# @scanner_router.post('/all')
-# async def create_scanner(scanner_data: ScannerModel):
-#     return await ScannerHandler.create_scanner(scanner_data)
 
 
 # Delete existed scanner to DB

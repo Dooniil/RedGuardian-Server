@@ -3,6 +3,7 @@ import ipaddress
 
 from Scanning.scanners_src.status_manager import status_manager
 from db.entities.Scanner import Scanner
+from RestAPI.src.encryption import EncyptionManager
 
 
 class ScannerHandler:
@@ -42,7 +43,10 @@ class ScannerHandler:
     @staticmethod
     async def disconnect_scanner(scanner_id: int) -> dict:
         try:
-            await status_manager.disconnect_connection(scanner_id)
+            status_manager.scanner_active_connections.pop(scanner_id)
+            for scanner in status_manager.all_scanner:
+                if scanner.get('id') == scanner_id:
+                    scanner.pop('active')
             return {'status': 'Done'}
         except Exception:
             return {'status': 'Error', 'error_msg': 'There\'s no one scanner with such a name'}
@@ -54,7 +58,11 @@ class ScannerHandler:
                 if scanner.get('id') == scanner_id:
                     try:
                         scanner['in_use'] = True
-                        await Scanner.update(scanner_id, scanner)
+                        scanner_copy = scanner.copy()
+                        if scanner_copy.get('active'):
+                            scanner_copy.pop('active')
+                        await Scanner.update(scanner_id, scanner_copy)
+                        await EncyptionManager.send_key(scanner.get('address'), scanner.get('port'))
                     except Exception as e:
                         return {'status': 'Error', 'error_msg': e}
                     status_manager.in_use.append(scanner)
@@ -67,7 +75,10 @@ class ScannerHandler:
             if scanner.get('id') == scanner_id:
                 try:
                     scanner['in_use'] = False
-                    await Scanner.update(scanner_id, scanner)
+                    scanner_copy = scanner.copy()
+                    if scanner_copy.get('active'):
+                        scanner_copy.pop('active')
+                    await Scanner.update(scanner_id, scanner_copy)
                     status_manager.in_use.pop(i)
                     return {'status': 'Done'}
                 except Exception as e:
@@ -95,7 +106,7 @@ class ScannerHandler:
                 w.close()
                 await w.wait_closed()
                 is_new_scanners, id_ = await check_in_db(name, str(host))
-                await status_manager.add_active_connection(id_, str(host), port)
+                status_manager.scanner_active_connections[id_] = (str(host), port)
             except Exception:
                 pass
 

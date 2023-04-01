@@ -2,7 +2,7 @@ from datetime import datetime
 
 from RestAPI.models.CredentialModel import CredentialModel, CredentialModelOptional
 from db.entities.Credential import Credential
-from RestAPI.src.encryption import encrypt
+from RestAPI.src.encryption import EncyptionManager
 
 platform_table = {
     'Any': 0,
@@ -16,7 +16,7 @@ class CredentialHandler:
     @staticmethod
     async def create_new_credential(c_type, data: CredentialModel):
         cred_dict = data.dict()
-        encrypted_password: bytes = encrypt(cred_dict.get('password'))
+        encrypted_password: bytes = EncyptionManager.encrypt(cred_dict.get('password'))
         cred_dict.update(platform_id=platform_table.get(c_type), password=encrypted_password)
 
         try:
