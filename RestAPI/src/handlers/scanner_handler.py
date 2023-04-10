@@ -1,9 +1,9 @@
 import asyncio
 import ipaddress
-
 from Scanning.scanners_src.status_manager import status_manager
 from db.entities.Scanner import Scanner
 from RestAPI.src.encryption import EncyptionManager
+from ssl_manager import ssl_manager
 
 
 class ScannerHandler:
@@ -12,6 +12,7 @@ class ScannerHandler:
         try:
             await Scanner.delete(scanner_id)
             status_manager.scanner_active_connections.pop(scanner_id)
+            status_manager.all_scanner.pop(scanner_id)
         except Exception as e:
             return {'status': 'Error', 'error_msg': e.args}
 
@@ -99,7 +100,7 @@ class ScannerHandler:
         async def ping(host: str):
             nonlocal is_new_scanners
             try:
-                r, w = await asyncio.open_connection(str(host), port)
+                r, w = await asyncio.open_connection(str(host), port, ssl=ssl_manager.context)
                 w.write(b'p')  # p = ping
                 await w.drain()
                 name = (await r.read(1536)).decode()

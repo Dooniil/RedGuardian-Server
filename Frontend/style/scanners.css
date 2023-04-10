@@ -1,0 +1,34 @@
+.scanners__container {
+    width: 95%;
+    margin: 15px auto;
+}
+
+.scanner__container-header {
+    margin: 0;
+    font-weight: bold;
+}
+
+.scanner__items {
+    margin: 15px 0;
+}
+
+.scanner__item {
+    padding: 15px 10px;
+    color: white;
+    background-color: #CC0605;
+}
+.scanner__item:hover {
+    background-color: #E32636;
+}
+
+.id {
+    padding: 0 10px 0 0;
+    font-size: 0.9em;
+    font-weight: light;
+    border-right: 1px solid white;
+}
+.name {
+    padding: 0 0 0 7px;
+    font-size: 1.1em;
+    font-weight: bold;
+}

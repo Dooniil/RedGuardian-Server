@@ -1,11 +1,13 @@
 import json
 import os
 import base64
+
 from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import hashes, serialization
 import asyncio
 import os.path
+
+from ssl_manager import ssl_manager
 
 
 class EncyptionManager:
@@ -61,7 +63,7 @@ class EncyptionManager:
     @classmethod
     async def send_key(cls, addr: str, port: int) -> None:
         try:
-            r, w = await asyncio.open_connection(addr, port)
+            r, w = await asyncio.open_connection(addr, port, ssl=ssl_manager.context)
             w.write(json.dumps({'type': 'key', 'key': cls.private_key.decode(encoding="raw_unicode_escape")}).encode())
             await w.drain()
             response = await r.read(1536)

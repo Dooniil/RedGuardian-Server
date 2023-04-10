@@ -1,8 +1,8 @@
 import asyncio
+from ssl_manager import ssl_manager
 
 
 class StatusManager:
-
     def __init__(self):
         self.scanner_active_connections: dict[int, tuple] = {}
         self.all_scanner: list = []
@@ -12,7 +12,7 @@ class StatusManager:
     async def check_conn(self) -> None:
         async def ping(addr, port, id_) -> None:
             try:
-                r, w = await asyncio.open_connection(addr, port)
+                r, w = await asyncio.open_connection(addr, port, ssl=ssl_manager.context)
                 w.write(b'c')
                 await w.drain()
                 w.close()
