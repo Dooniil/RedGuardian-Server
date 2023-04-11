@@ -23,6 +23,15 @@ class ScannerHandler:
         return status_manager.all_scanner
 
     @staticmethod
+    async def get_scanner_id(id_scanner):
+        try:
+            instance = (await Scanner.get(id_scanner))[0]
+        except Exception as e:
+            return {'status': 'Error', 'error_msg': e.args}
+
+        return instance.repr
+
+    @staticmethod
     async def fetch_changes_scanners():
         status_manager.all_scanner.clear()
         try:

@@ -31,7 +31,7 @@ async def start_funcs():
     tasks = [
         asyncio.create_task(get_list_scanners()),
         asyncio.create_task(read_keys()),
-        asyncio.create_task(broadcast('192.168.50.0/24'))
+        asyncio.create_task(broadcast('10.0.0.0/24'))
     ]
     await asyncio.wait(tasks)
     await get_list_in_use()

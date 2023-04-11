@@ -7,20 +7,26 @@
 
 {% block content %}
     <div class="scanners__container">
-        <h2 class="scanner__container-header">Список сканеров</h2>
+        <h2 class="scanner__container-header">Список служб сканирования</h2>
+        <div class="scanner__title">
+            <span>ID</span>
+            <span>Имя</span>
+            <span>Статус</span>
+        </div>
         <div class="scanner__items">
             {% for scanner in scanners %}
-                <div class="scanner__item">
-                    <div class="scanner__naming">
-                        <span class="id">{{ scanner.id }}</span>
-                        <span class="name">{{ scanner.name }}</span>
-                        {% if scanner.active %}
-                            <span class="active">Сканер активен</span>
-                        {% else %}
-                            <span class="active">Сканер неактивен</span>
-                        {% endif %}
-                    </div>
+            <div class="scanner__item">
+                <div class="scanner__info">
+                    <div>{{ scanner.id }}</div>
+                    <div>{{ scanner.name }}</div>
+                    {% if scanner.active %}
+                        <div class="active"></div>
+                    {% else %}
+                        <div></div>
+                    {% endif %}
                 </div>
+
+            </div>
             {% endfor %}
         </div>
     </div>

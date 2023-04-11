@@ -14,6 +14,7 @@ class Task(async_db_session.base, BehaviorModel):
     task_type = Column(Integer, nullable=False)
     custom_settings = Column(JSON, nullable=False)
     run_after_creation = Column(Boolean, default=False, nullable=False)
+    status = Column(Integer, default=0)
     created_at = Column(DateTime(timezone=False), server_default=func.now())
     updated_at = Column(DateTime(timezone=False), server_default=func.now(), onupdate=func.now())
 
@@ -28,6 +29,7 @@ class Task(async_db_session.base, BehaviorModel):
             'type': self.task_type,
             'custom_settings': self.custom_settings,
             'run_after_creation': self.run_after_creation,
+            'status': self.status,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
