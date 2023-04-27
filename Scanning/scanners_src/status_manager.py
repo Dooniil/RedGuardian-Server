@@ -1,29 +1,27 @@
 import asyncio
-from ssl_manager import ssl_manager
+from Scanning.scanners_src.sender_messages import SenderMsg, Message
 
 
 class StatusManager:
     def __init__(self):
         self.scanner_active_connections: dict[int, tuple] = {}
-        self.all_scanner: list = []
-        self.in_use: list = []
+        self.all_scanner: list[dict] = []
+        self.in_use: list[int] = []
 
     # checking state of connected scanners
     async def check_conn(self) -> None:
-        async def ping(addr, port, id_) -> None:
+        async def ping(host, port, id) -> None:
             try:
-                r, w = await asyncio.open_connection(addr, port, ssl=ssl_manager.context)
-                w.write(b'c')
-                await w.drain()
-                w.close()
-                await w.wait_closed()
+                conn_sender = SenderMsg(host, port)
+                async with conn_sender:
+                    await conn_sender.send_msg(type_msg=Message.CONNECTION)
             except asyncio.TimeoutError:
-                self.scanner_active_connections.pop(id_)
+                self.scanner_active_connections.pop(id)
 
         if self.scanner_active_connections:
-            tasks_check_conn = [asyncio.create_task(ping(conn_data[0], conn_data[1], scanner_id))
-                                for scanner_id, conn_data in self.scanner_active_connections.items()]
-            await asyncio.wait(tasks_check_conn)
+            async with asyncio.TaskGroup() as tg:
+                tasks = [tg.create_task(ping(conn_data[0], conn_data[1], scanner_id))
+                         for scanner_id, conn_data in self.scanner_active_connections.items()]
 
 
 status_manager: StatusManager = StatusManager()

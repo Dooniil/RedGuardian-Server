@@ -1,13 +1,10 @@
-import json
 import os
 import base64
-
+from Scanning.scanners_src.request_type import RequestType
+from Scanning.scanners_src.sender_messages import SenderMsg
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes, serialization
-import asyncio
 import os.path
-
-from ssl_manager import ssl_manager
 
 
 class EncyptionManager:
@@ -61,15 +58,14 @@ class EncyptionManager:
             raise
 
     @classmethod
-    async def send_key(cls, addr: str, port: int) -> None:
+    async def send_key(cls, host: str, port: int) -> None:
         try:
-            r, w = await asyncio.open_connection(addr, port, ssl=ssl_manager.context)
-            w.write(json.dumps({'type': 'key', 'key': cls.private_key.decode(encoding="raw_unicode_escape")}).encode())
-            await w.drain()
-            response = await r.read(1536)
-            if response != b'1':
-                raise Exception('The key didn\'t send')
-            w.close()
-            await w.wait_closed()
+            key_sender = SenderMsg(host, port)
+            request = {
+                'type': RequestType.KEY.value,
+                'key': cls.private_key.decode(encoding="raw_unicode_escape")
+            }
+            async with key_sender:
+                await key_sender.send_msg(request)
         except Exception as e:
             print(e)

@@ -53,9 +53,9 @@ async def async_main() -> None:
     config = uvicorn.Config("main:app", port=8083, host=host, log_level="info")
     server = uvicorn.Server(config)
 
-    # competitive performing REST API and Controller
-    scanners_manager_task = asyncio.create_task(run_server(host, 8082))
-    await asyncio.gather(server.serve(), scanners_manager_task)
+    async with asyncio.TaskGroup() as tg:
+        tg.create_task(run_server(host, 8082)),
+        tg.create_task(server.serve())
 
 
 if __name__ == '__main__':

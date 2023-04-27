@@ -13,7 +13,7 @@ class TypeHD(Enum):
 class TypeProtocol(Enum):
     TCP = 0
     ICMP = 1
-    ARP = 2
+    UDP = 2
 
 
 class HostDiscoveryModel(BaseModel):

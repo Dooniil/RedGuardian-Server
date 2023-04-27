@@ -1,24 +1,44 @@
 import json
 import asyncio
-from ssl_manager import ssl_manager
-from Scanning.scanners_src.status_manager import status_manager
+
+from Scanning.result_handlers.result_handler import ResultHandler
+from Scanning.scanners_src.ssl_manager import ssl_manager
+from Scanning.scanners_src.request_type import RequestType
+
+
+async def read_request(reader) -> str:
+    request = bytearray()
+    while True:
+        request += await reader.read(1536)
+        reader.feed_eof()
+        if reader.at_eof():
+            return request.decode()
 
 
 async def controller_handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
-    addr, port = writer.get_extra_info('peername')
-    msg = await reader.read(1536)
-    data = json.loads(msg)
+    request = await read_request(reader)
+    #  TODO send response
 
-    # type_req = data.get('cmd')
-    # name = data.get('name_scanner')
-    # match type_req:
-    #     case 'connecting':
-    #         await connection_manager.add_connection(name, addr, port)
-    #         await connection_manager.send_key(addr, port)
-        # case 'request':
-        #     pass
-        # case 'closing':
-        #     connection_manager.remove_connection(name)
+    try:
+        data = json.loads(request)
+        match data.get('type'):
+            case RequestType.ERROR.value:
+                error_dict = data.get('error_info')
+                print(error_dict)
+            case RequestType.RESULT.value:
+                result_dict = {
+                    'result_info': data.get('result_info'),
+                    'task_id': data.get('task_id'),
+                    'type_task': data.get('type_task'),
+                    'start_time': data.get('start_time'),
+                    'end_time': data.get('end_time'),
+                    'exec_time': data.get('exec_time')
+                }
+                print(result_dict)
+                task_result = asyncio.create_task(ResultHandler.analyze_result(result_dict))
+                await task_result
+    except json.decoder.JSONDecodeError:
+        pass
 
 
 async def run_server(host: str, port: int) -> None:

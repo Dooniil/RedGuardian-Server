@@ -2,6 +2,15 @@ from pydantic import BaseModel
 from enum import Enum
 
 
+#  This is only for info
+class TaskStatus(Enum):
+    CREATED = 0
+    SENT = 1
+    IN_PROGRESS = 2
+    DONE = 3
+    ERROR = 4
+
+
 class TaskType(Enum):
     HOST_DISCOVERY = 0
 

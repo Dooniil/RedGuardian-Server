@@ -11,7 +11,7 @@ class Scanner(async_db_session.base, BehaviorModel):
     name = Column(String(100), nullable=False)
     address = Column(String(50), nullable=False)
     port = Column(Integer, default=8084, nullable=False)
-    description = Column(String, default='', nullable=True)
+    description = Column(String, nullable=True)
     in_use = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime(timezone=False), server_default=func.now())
     updated_at = Column(DateTime(timezone=False), server_default=func.now(), onupdate=func.now())
@@ -27,10 +27,6 @@ class Scanner(async_db_session.base, BehaviorModel):
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
-
-    @classmethod
-    async def get_filter(cls, *args):
-        pass
 
     @classmethod
     async def get_in_use(cls):

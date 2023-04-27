@@ -1,4 +1,6 @@
 from sqlalchemy import select, delete, update
+from sqlalchemy.orm import selectinload
+
 from db.database import async_db_session
 
 
@@ -19,11 +21,7 @@ class BehaviorModel:
     async def get(cls, pk):
         stmt = select(cls).where(cls.id == pk)
         result = await async_db_session.execute(stmt)
-        return result.first()
-
-    @classmethod
-    async def get_filter(cls, *args):
-        raise NotImplementedError
+        return result.first()[0]
 
     @classmethod
     async def get_by_name(cls, name: str):
@@ -56,3 +54,14 @@ class BehaviorModel:
         except Exception:
             await async_db_session.rollback()
             raise
+
+    @classmethod
+    async def get_relationship(cls, id, relationship):
+        try:
+            stmt = select(cls).where(cls.id == id).options(selectinload(relationship))
+            result = await async_db_session.execute(stmt)
+            instance = result.scalars().one()
+        except Exception as e:
+            return {'status': 'Error', 'error_msg': e.args}
+
+        return instance.repr

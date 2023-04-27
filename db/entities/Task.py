@@ -26,14 +26,10 @@ class Task(async_db_session.base, BehaviorModel):
             'description': self.description,
             'credential_id': self.credential_id,
             'scanner_id': self.scanner_id,
-            'type': self.task_type,
+            'task_type': self.task_type,
             'custom_settings': self.custom_settings,
             'run_after_creation': self.run_after_creation,
             'status': self.status,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
-
-    @classmethod
-    async def get_filter(cls, *args):
-        pass

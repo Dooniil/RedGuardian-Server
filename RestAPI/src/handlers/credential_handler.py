@@ -29,7 +29,7 @@ class CredentialHandler:
     @staticmethod
     async def get_credential(c_id):
         try:
-            instance = (await Credential.get(c_id))[0]
+            instance = await Credential.get(c_id)
         except Exception as e:
             return {'status': 'Error', 'error_msg': e.args}
 

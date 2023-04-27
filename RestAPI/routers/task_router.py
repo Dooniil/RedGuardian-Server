@@ -20,36 +20,3 @@ async def get_task(id: int):
 @task_router.get('/run/{id}')
 async def run_task(id: int):
     return await TaskExecutionHandler.run_task(id)
-#
-# @task_router.get('/')
-# async def get_credential(
-#         name: Optional[str] = None,
-#         platform_type: PlatformOptional = 'Any',
-#         created_at: Optional[str] = None,
-#         updated_at: Optional[str] = None
-#         ):
-#     response = await CredentialHandler.get_credential_filter(
-#         name=name,
-#         platform_type=platform_type,
-#         created_date=created_at,
-#         updated_date=updated_at
-#     )
-#     return response
-#
-#
-# @task_router.get('/{credential_id}')
-# async def get_credential_by_id(credential_id: int):
-#     response = await CredentialHandler.get_credential(credential_id)
-#     return response
-#
-#
-# @task_router.put('/{credential_id}')
-# async def post_credential(credential_id: int, new_data: CredentialModelOptional):
-#     response = await CredentialHandler.update_credential(credential_id, new_data)
-#     return response
-#
-#
-# @task_router.delete('/{credential_id}')
-# async def delete_credential_by_id(credential_id: int):
-#     response = await CredentialHandler.delete_credential(credential_id)
-#     return response

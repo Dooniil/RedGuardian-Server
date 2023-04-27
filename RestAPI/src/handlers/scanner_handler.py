@@ -3,7 +3,7 @@ import ipaddress
 from Scanning.scanners_src.status_manager import status_manager
 from db.entities.Scanner import Scanner
 from RestAPI.src.encryption import EncyptionManager
-from ssl_manager import ssl_manager
+from Scanning.scanners_src.sender_messages import SenderMsg, Message
 
 
 class ScannerHandler:
@@ -25,7 +25,7 @@ class ScannerHandler:
     @staticmethod
     async def get_scanner_id(id_scanner):
         try:
-            instance = (await Scanner.get(id_scanner))[0]
+            instance = await Scanner.get(id_scanner)
         except Exception as e:
             return {'status': 'Error', 'error_msg': e.args}
 
@@ -64,35 +64,28 @@ class ScannerHandler:
     @staticmethod
     async def specify_scanner(scanner_id: int):
         if scanner_id in status_manager.scanner_active_connections:
-            for scanner in status_manager.all_scanner:
-                if scanner.get('id') == scanner_id:
-                    try:
-                        scanner['in_use'] = True
-                        scanner_copy = scanner.copy()
-                        if scanner_copy.get('active'):
-                            scanner_copy.pop('active')
-                        await Scanner.update(scanner_id, scanner_copy)
-                        await EncyptionManager.send_key(scanner.get('address'), scanner.get('port'))
-                    except Exception as e:
-                        return {'status': 'Error', 'error_msg': e}
-                    status_manager.in_use.append(scanner)
-                    return {'status': 'Done'}
+            scanner_dict: dict = await ScannerHandler.get_scanner_id(scanner_id)
+            try:
+                scanner_dict.update(in_use=True)
+                await Scanner.update(scanner_id, scanner_dict)
+                await EncyptionManager.send_key(scanner_dict.get('address'), scanner_dict.get('port'))
+            except Exception as e:
+                return {'status': 'Error', 'error_msg': e}
+            status_manager.in_use.append(scanner_id)
+            return {'status': 'Done'}
         return {'status': 'Undone', 'msg': 'Scanner isn\'t active'}
 
     @staticmethod
     async def unspecify_scanner(scanner_id: int):
-        for i, scanner in enumerate(status_manager.in_use):
-            if scanner.get('id') == scanner_id:
-                try:
-                    scanner['in_use'] = False
-                    scanner_copy = scanner.copy()
-                    if scanner_copy.get('active'):
-                        scanner_copy.pop('active')
-                    await Scanner.update(scanner_id, scanner_copy)
-                    status_manager.in_use.pop(i)
-                    return {'status': 'Done'}
-                except Exception as e:
-                    return {'status': 'Error', 'error_msg': e}
+        if scanner_id in status_manager.scanner_active_connections:
+            scanner_dict: dict = await ScannerHandler.get_scanner_id(scanner_id)
+            try:
+                scanner_dict.update(in_use=False)
+                await Scanner.update(scanner_id, scanner_dict)
+                status_manager.in_use.remove(scanner_id)
+                return {'status': 'Done'}
+            except Exception as e:
+                return {'status': 'Error', 'error_msg': e}
         return {'status': 'Undone', 'msg': 'Scanner isn\'t in use'}
 
     @staticmethod
@@ -109,21 +102,20 @@ class ScannerHandler:
         async def ping(host: str):
             nonlocal is_new_scanners
             try:
-                r, w = await asyncio.open_connection(str(host), port, ssl=ssl_manager.context)
-                w.write(b'p')  # p = ping
-                await w.drain()
-                name = (await r.read(1536)).decode()
-                w.close()
-                await w.wait_closed()
-                is_new_scanners, id_ = await check_in_db(name, str(host))
-                status_manager.scanner_active_connections[id_] = (str(host), port)
-            except Exception:
+                ping_sender = SenderMsg(str(host), port)
+                async with ping_sender:
+                    await ping_sender.send_msg(type_msg=Message.PING)
+                    name = await ping_sender.read_msg()
+
+                is_new_scanners, id = await check_in_db(name, str(host))
+                status_manager.scanner_active_connections[id] = (str(host), port)
+            except Exception as e:
                 pass
 
         try:
             network = ipaddress.ip_network(broadcast)
-            tasks = [asyncio.create_task(ping(str(host))) for host in network.hosts()]
-            await asyncio.wait(tasks)
+            async with asyncio.TaskGroup() as ping_tg:
+                tasks = [ping_tg.create_task(ping(str(host))) for host in network.hosts()]
 
             if is_new_scanners:
                 await ScannerHandler.fetch_changes_scanners()
