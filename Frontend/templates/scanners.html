@@ -2,10 +2,12 @@
 
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('style', path='scanners.css') }}">
+
 {% endblock %}
 
 
 {% block content %}
+    <a href="#" class="open-popup">Обнаружить службы сканирования</a>
     <div class="scanners__container">
         <h2 class="scanner__container-header">Список служб сканирования</h2>
         <div class="scanner__title">
@@ -15,7 +17,7 @@
         </div>
         <div class="scanner__items">
             {% for scanner in scanners %}
-            <div class="scanner__item">
+            <div id="scanner_{{ scanner.id }}" class="scanner__item">
                 <div class="scanner__info">
                     <div>{{ scanner.id }}</div>
                     <div>{{ scanner.name }}</div>
@@ -24,10 +26,47 @@
                     {% else %}
                         <div></div>
                     {% endif %}
-                </div>
 
+                </div>
+                <div></div>
+                <div class="scanner__actions">
+                    {% if scanner.active %}
+                        <button id="btn_use_{{ scanner.id }}" type="submit" class="scanner__button"
+                                data-using="{{ scanner.in_use }}"
+                                onclick="change_use_scanner({{ scanner.id }});">
+                            {% if scanner.in_use %}
+                                Не использовать
+                            {% else %}
+                                Использовать
+                            {% endif %}
+                        </button>
+                    {% else %}
+                        <button disabled type="submit" class="scanner__button">Сканнер неактивен</button>
+                    {% endif %}
+                    <button id="btn_del_{{ scanner.id }}" type="submit" class="scanner__button button-delete"
+                            onclick="delete_scanner({{ scanner.id }});">Удалить</button>
+                </div>
             </div>
             {% endfor %}
         </div>
     </div>
+    <div class="popup__hd-bg">
+        <form class="popup">
+            <div class="close-popup"></div>
+            <label>
+                <input type="text" name="subnet" placeholder="192.168.50.0/24">
+                <div class="label__text">
+                    Подсеть
+                </div>
+            </label>
+            <label>
+                <input type="tel" name="tel">
+                <div class="label__text">
+                    Порт службы сканирования
+                </div>
+            </label>
+            <button type="submit">Искать службы сканирования</button>
+        </form>
+    </div>
+    <script src="{{ url_for('scripts', path='scanner.js') }}"></script>
 {% endblock %}

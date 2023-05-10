@@ -5,6 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy import text
 
 
+class DatabaseException(Exception):
+    pass
+
+
 class AsyncDatabaseSession:
     def __init__(self):
         self._session = None
@@ -39,14 +43,17 @@ class AsyncDatabaseSession:
 
     def __get_conn_info(self) -> None:
         path = sep.join([getcwd(), 'db', 'db_config.json'])
-        with open(path, 'r') as file:
-            self.conn_info = json.loads(file.read())
+        try:
+            with open(path, 'r') as file:
+                self.conn_info = json.loads(file.read())
+        except Exception as e:
+            raise DatabaseException(f'Ошибка при чтении конфигурационного файла:\nСообщение: {e.args}')
 
     async def check_connection(self) -> None:
         try:
             await self.execute(text('SELECT 1'))
-        except ConnectionRefusedError as e:
-            print('Connection to DB has been failed... \nRestart program')
+        except ConnectionRefusedError:
+            raise DatabaseException('Connection to DB has been failed... \nRestart program')
 
     async def init(self):
         self.__get_conn_info()

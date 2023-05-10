@@ -30,6 +30,6 @@ async def start_funcs():
     async with asyncio.TaskGroup() as tg:
         tg.create_task(get_list_scanners()),
         tg.create_task(read_keys()),
-        tg.create_task(broadcast('10.0.0.0/24'))
+        tg.create_task(broadcast('192.168.50.0/24'))
 
     await get_list_in_use()

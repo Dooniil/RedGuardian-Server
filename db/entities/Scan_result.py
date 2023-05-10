@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, ForeignKey, JSON
 from sqlalchemy.orm import relationship
-
 from db.database import async_db_session
 from db.entities.behavior_model import BehaviorModel
 

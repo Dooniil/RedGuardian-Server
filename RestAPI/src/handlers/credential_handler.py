@@ -21,19 +21,19 @@ class CredentialHandler:
 
         try:
             new_instance = await Credential.create(**cred_dict)
+            return new_instance.repr
         except Exception as e:
             return {'status': 'Error', 'error_msg': e.args}
 
-        return new_instance.repr
 
     @staticmethod
     async def get_credential(c_id):
         try:
             instance = await Credential.get(c_id)
+            return instance.repr
         except Exception as e:
             return {'status': 'Error', 'error_msg': e.args}
 
-        return instance.repr
 
     @staticmethod
     async def get_credential_filter(name, created_date, updated_date, platform_type='Any'):
@@ -57,11 +57,10 @@ class CredentialHandler:
     async def delete_credential(c_id):
         try:
             await Credential.delete(c_id)
-
+            return {'status': 'Done'}
         except Exception as e:
             return {'status': 'Error', 'error_msg': e.args}
 
-        return {'status': 'Done'}
 
     @staticmethod
     async def update_credential(c_id: int, data: CredentialModelOptional):
@@ -71,7 +70,6 @@ class CredentialHandler:
                 cred_dict[k] = v
         try:
             await Credential.update(c_id, cred_dict)
+            return {'status': 'Done'}
         except Exception as e:
             return {'status': 'Error', 'error_msg': e.args}
-
-        return {'status': 'Done'}

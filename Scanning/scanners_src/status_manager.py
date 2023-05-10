@@ -15,7 +15,7 @@ class StatusManager:
                 conn_sender = SenderMsg(host, port)
                 async with conn_sender:
                     await conn_sender.send_msg(type_msg=Message.CONNECTION)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 self.scanner_active_connections.pop(id)
 
         if self.scanner_active_connections:

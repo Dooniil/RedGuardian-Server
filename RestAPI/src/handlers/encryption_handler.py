@@ -36,7 +36,6 @@ def gen_keys(size: int) -> dict:
             f_pr.write(private_bytes)
         EncyptionManager.get_private_key()
 
+        return {'status': 'Done'}
     except Exception as e:
         return {'status': 'Error', 'error_msg': e}
-    finally:
-        return {'status': 'Done'}

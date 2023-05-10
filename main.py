@@ -24,9 +24,15 @@ app.mount(
     StaticFiles(directory=Path(__file__).parent.parent.absolute() / "RedGuardian-Server/Frontend/style"),
     name="style",
 )
+app.mount(
+    "/Frontend/scripts",
+    StaticFiles(directory=Path(__file__).parent.parent.absolute() / "RedGuardian-Server/Frontend/scripts"),
+    name="scripts",
+)
 
 origins = [
-    "http://10.0.0.183:8083",
+    # "http://10.0.0.183:8083",
+    "http://192.168.50.223:8083",
 ]
 
 app.add_middleware(
@@ -46,7 +52,8 @@ async def startup():
 # connecting to DB, start REST API and Controller
 async def async_main() -> None:
     # host = choose_host()
-    host = '10.0.0.183'
+    # host = '10.0.0.183'
+    host = '192.168.50.223'
     await async_db_session.init()
     await async_db_session.check_connection()
 
