@@ -9,3 +9,6 @@ class ScannerModel(BaseModel):
     description: Optional[str] = ''
 
 
+class ScannerDiscovery(BaseModel):
+    subnet: str
+    port: Optional[int] = 8084

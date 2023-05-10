@@ -46,7 +46,7 @@ class EncyptionManager:
             with open(path_private, "rb") as key_file:
                 cls.private_key = key_file.read()
         else:
-            raise
+            pass
 
     @classmethod
     async def get_public_key(cls):
@@ -55,7 +55,7 @@ class EncyptionManager:
             with open(path_public, "rb") as key_file:
                 cls.public_key = key_file.read()
         else:
-            raise
+            pass
 
     @classmethod
     async def send_key(cls, host: str, port: int) -> None:

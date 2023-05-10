@@ -17,6 +17,8 @@ class StatusManager:
                     await conn_sender.send_msg(type_msg=Message.CONNECTION)
             except TimeoutError:
                 self.scanner_active_connections.pop(id)
+            except ConnectionRefusedError:
+                pass
 
         if self.scanner_active_connections:
             async with asyncio.TaskGroup() as tg:

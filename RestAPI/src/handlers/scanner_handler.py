@@ -89,7 +89,8 @@ class ScannerHandler:
                 return {'status': 'Error', 'error_msg': e}
 
     @staticmethod
-    async def find_scanners(port: int, broadcast: str):
+    async def find_scanners(data):
+        subnet, port = data.get('subnet'), data.get('port')
         is_new_scanners = False
 
         async def check_in_db(name, addr):
@@ -115,14 +116,15 @@ class ScannerHandler:
                 pass
 
         try:
-            network = ipaddress.ip_network(broadcast)
+            network = ipaddress.ip_network(subnet)
             async with asyncio.TaskGroup() as ping_tg:
                 tasks = [ping_tg.create_task(ping(str(host))) for host in network.hosts()]
 
         except Exception as e:
-            print(e.args)
+            return {'status': 'Error', 'error_msg': e}
         finally:
             if is_new_scanners:
                 await ScannerHandler.fetch_changes_scanners()
 
             await ScannerHandler.fetch_changes_active()
+            return {'status': 0}

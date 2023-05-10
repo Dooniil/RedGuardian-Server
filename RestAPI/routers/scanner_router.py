@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from RestAPI.src.handlers.scanner_handler import ScannerHandler
+from RestAPI.models.ScannerModel import ScannerDiscovery
 
 
 scanner_router = APIRouter(prefix='/scanners', tags=['Scanners'])
@@ -37,8 +38,7 @@ async def specify_in_use(id: int):
 async def unspecify_in_use(id: int):
     return await ScannerHandler.unspecify_scanner(id)
 
-
 # broadcast searching turn on scanners
-@scanner_router.get('/search')
-async def broadcast(port: int = 8084, net: str = '192.168.50.0/24'):
-    return await ScannerHandler.find_scanners(port, net)
+@scanner_router.post('/search')
+async def broadcast(data: ScannerDiscovery):
+    return await ScannerHandler.find_scanners(data.dict())

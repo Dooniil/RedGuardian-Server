@@ -14,7 +14,7 @@ class Credential(async_db_session.base, BehaviorModel):
     login = Column(String(100), nullable=False)
     password = Column(LargeBinary, nullable=False)
     platform_id = Column(Integer, ForeignKey('platform.id'), nullable=False)
-    platform = relationship('Platform', back_populates="credentials")
+    # platform = relationship('Platform', back_populates="credentials")
     created_at = Column(DateTime(timezone=False), server_default=func.now())
     updated_at = Column(DateTime(timezone=False), server_default=func.now(), onupdate=func.now())
 

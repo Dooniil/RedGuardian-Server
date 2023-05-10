@@ -8,4 +8,4 @@ class Platform(async_db_session.base, BehaviorModel):
     __tablename__ = 'platform'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=False)
-    credentials = relationship('Credential', back_populates="platform")
+    # credentials = relationship('Credential', back_populates="platform")

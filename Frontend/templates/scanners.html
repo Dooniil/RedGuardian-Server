@@ -7,22 +7,27 @@
 
 
 {% block content %}
-    <a href="#" class="open-popup">Обнаружить службы сканирования</a>
+
     <div class="scanners__container">
+        <h2 class="scanner__container-header">Действия</h2>
+        <div class="actions_row">
+            <a href="#" class="scanner__button button-link open-popup">Обнаружить службы сканирования</a>
+        </div>
+        
         <h2 class="scanner__container-header">Список служб сканирования</h2>
         <div class="scanner__title">
             <span>ID</span>
             <span>Имя</span>
             <span>Статус</span>
         </div>
-        <div class="scanner__items">
+        <div id="scanner-items" class="scanner__items">
             {% for scanner in scanners %}
             <div id="scanner_{{ scanner.id }}" class="scanner__item">
                 <div class="scanner__info">
                     <div>{{ scanner.id }}</div>
                     <div>{{ scanner.name }}</div>
                     {% if scanner.active %}
-                        <div class="active"></div>
+                        <div class="scanner-active"></div>
                     {% else %}
                         <div></div>
                     {% endif %}
@@ -50,23 +55,25 @@
             {% endfor %}
         </div>
     </div>
-    <div class="popup__hd-bg">
-        <form class="popup">
-            <div class="close-popup"></div>
+    <div class="popup__bg">
+        <div class="popup">
+            <img src="{{ url_for('style', path='img/close_icon.png') }}" class="close-popup" />
             <label>
-                <input type="text" name="subnet" placeholder="192.168.50.0/24">
+                <input id="subnet" type="text" name="subnet" placeholder="192.168.50.0/24">
                 <div class="label__text">
                     Подсеть
                 </div>
             </label>
             <label>
-                <input type="tel" name="tel">
+                <input id="port" type="text" name="port">
                 <div class="label__text">
                     Порт службы сканирования
                 </div>
             </label>
-            <button type="submit">Искать службы сканирования</button>
-        </form>
+            <button id="button_hd" class="scanner__button" type="submit" 
+                onclick="discovery_scanners();">Искать службы сканирования</button>
+        </div>
+        <script src="{{ url_for('scripts', path='popup.js') }}"></script>
     </div>
     <script src="{{ url_for('scripts', path='scanner.js') }}"></script>
 {% endblock %}

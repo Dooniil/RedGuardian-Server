@@ -1,28 +1,3 @@
-let popupBg = document.querySelector('.popup__hd-bg'); 
-let popup = document.querySelector('.popup');
-let openPopupButtons = document.querySelectorAll('.open-popup');
-let closePopupButton = document.querySelector('.close-popup');
-
-openPopupButtons.forEach((button) => { // Перебираем все кнопки
-    button.addEventListener('click', (e) => { // Для каждой вешаем обработчик событий на клик
-        e.preventDefault(); // Предотвращаем дефолтное поведение браузера
-        popupBg.classList.add('active'); // Добавляем класс 'active' для фона
-        popup.classList.add('active'); // И для самого окна
-    })
-});
-
-closePopupButton.addEventListener('click',() => { // Вешаем обработчик на крестик
-    popupBg.classList.remove('active'); // Убираем активный класс с фона
-    popup.classList.remove('active'); // И с окна
-});
-
-document.addEventListener('click', (e) => { // Вешаем обработчик на весь документ
-    if(e.target === popupBg) { // Если цель клика - фот, то:
-        popupBg.classList.remove('active'); // Убираем активный класс с фона
-        popup.classList.remove('active'); // И с окна
-    }
-});
-
 async function change_use_scanner(id) {
         const btn = document.getElementById(`btn_use_${id}`);
         let using = btn.getAttribute('data-using').toLowerCase() == 'true' ? true : false;
@@ -55,6 +30,81 @@ async function delete_scanner(id) {
         .then((data) => {
             if (data.status == 0) {
 
+            }
+        })
+        .catch(function(error) {
+            console.log(error);
+        })
+}
+
+
+async function update_scanners() {
+    let url = `api/scanners/all`;
+
+    await fetch(url=url)
+        .then((resp) => resp.json())
+        .then((data) => {
+            clearContent('scanner-items');
+            data.forEach(async (scanner) => {
+                addScanner(scanner.id, scanner.name, scanner.active, scanner.in_use);
+            })
+        })
+        .catch(function(error) {
+            console.log(error);
+        })
+}
+
+function addScanner(id, name, active, in_use) {
+    const div = document.createElement('div');
+    div.className = 'scanner__item';
+
+    const part_1 = `<div class="scanner__info">
+                <div>${ id }</div>
+                <div>${ name }</div>
+                ${ active == true ? `<div class="scanner-active"></div>` : `<div></div>` }
+            </div>`
+
+    const part_2 = `<div></div>`;
+    const part_3 = `<div class="scanner__actions">
+        ${ active == true 
+            ? `<button id="btn_use_${ id }" type="submit" class="scanner__button" 
+                    data-using="${ in_use }" onclick="change_use_scanner(${ id });">
+                ${ in_use == true ? `Не использовать` : `Использовать` }
+                </button>` 
+            : `<button disabled type="submit" class="scanner__button">Сканнер неактивен</button>`}
+        <button id="btn_del_${ id }" type="submit" class="scanner__button button-delete"
+            onclick="delete_scanner(${ id });">Удалить</button>
+    </div>`;
+    div.innerHTML = part_1 + part_2 + part_3;
+        
+    document.getElementById('scanner-items').appendChild(div);
+}
+
+function clearContent(elementID) {
+    document.getElementById(elementID).innerHTML = '';
+}
+
+async function discovery_scanners() {  
+    const subnet = document.getElementById('subnet').value;
+    const port = document.getElementById('port').value;
+    const btn = document.getElementById('button_hd');
+    btn.textContent = '------';
+
+    let url = `api/scanners/search`;
+
+    await fetch(url=url, {
+        method: 'POST', 
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            subnet: subnet,
+            port: port
+        })
+        })
+        .then((resp) => resp.json())
+        .then(async (data) => {
+            if (data.status == 0) {
+                btn.textContent = 'Искать службы сканирования';
+                await update_scanners();
             }
         })
         .catch(function(error) {

@@ -47,7 +47,7 @@
     background-color: #E52B50;
     border-radius: 50%;
 }
-.active {
+.scanner-active {
     background-color: #46AA64 !important;
 }
 .scanner__title {
@@ -76,7 +76,9 @@
 .button-delete:hover {
     background-color: #E32636;
 }
-.popup__hd-bg {
+
+
+.popup__bg {
     position: fixed;
     top: 0;
     left: 0;
@@ -87,7 +89,7 @@
     pointer-events: none;
     transition: 0.5s all;
 }
-.popup__hd-bg.active {
+.popup__bg.active {
     opacity: 1;
     pointer-events: all;
     transition: 0.5s all;
@@ -108,10 +110,10 @@
 }
 .close-popup {
     position: absolute;
+    width: 24px;
     top: 10px;
     right: 10px;
     cursor: pointer;
-    border: 1px solid black;
 }
 .popup label {
     width: 100%;
@@ -124,7 +126,7 @@
     font-size: 14px;
     text-transform: uppercase;
     font-weight: 500;
-    color: #cfd0d3;
+    color: #333333;
     margin-bottom: 5px;
 }
 
@@ -133,7 +135,7 @@
     font-size: 18px;
     border: none;
     outline: none;
-    border-bottom: 1px solid #cfd0d3;
+    border-bottom: 1px solid #797979;
 }
 .popup input:focus {
     border-bottom: 1px solid #2982ff;
@@ -142,21 +144,29 @@
     color: #2982ff;
 }
 .popup button {
-    width: 100%;
-    height: 45px;
-    display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
+    height: 45px;
+    text-transform: uppercase;
     color: #fff;
     font-size: 18px;
-    border: 2px solid #2982ff;
     background: #2982ff;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: 0.5s all;
 }
 .popup button:hover {
-    background: #fff;
-    color:#2982ff;
-    transition: 0.5s all;
+    background: #1474fa;
+}
+
+
+.actions_row {
+    display: flex;
+    margin: 15px 0px;
+}
+.button-link {
+    color: white;
+    text-decoration: none;
+    background-color: #2982ff;
+}
+.button-link:hover {
+    background-color: #1474fa;
 }
