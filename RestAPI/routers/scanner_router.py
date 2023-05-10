@@ -18,10 +18,17 @@ async def get_all_scanner():
     return await ScannerHandler.get_all_scanners()
 
 
+@scanner_router.get('/update_all')
+async def update_list_scanners():
+    await ScannerHandler.get_active_scanners()
+    await ScannerHandler.fetch_changes_active()
+    return await ScannerHandler.get_all_scanners()
+
+
 # Get only active (turn on) scanner
-@scanner_router.get('/active')
-async def get_active_scanners():
-    return await ScannerHandler.get_active_scanners()
+# @scanner_router.get('/active')
+# async def get_active_scanners():
+#     return await ScannerHandler.get_active_scanners()
 
 
 # @scanner_router.delete('/active')
@@ -37,6 +44,7 @@ async def specify_in_use(id: int):
 @scanner_router.get('/not_in_use/{id}')
 async def unspecify_in_use(id: int):
     return await ScannerHandler.unspecify_scanner(id)
+
 
 # broadcast searching turn on scanners
 @scanner_router.post('/search')

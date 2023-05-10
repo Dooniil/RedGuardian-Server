@@ -12,6 +12,7 @@
         <h2 class="scanner__container-header">Действия</h2>
         <div class="actions_row">
             <a href="#" class="scanner__button button-link open-popup">Обнаружить службы сканирования</a>
+            <button id="button-update" onclick="update_scanners_list();" class="scanner__button button-blue button-update">Обновить список</button>
         </div>
         
         <h2 class="scanner__container-header">Список служб сканирования</h2>
@@ -48,7 +49,7 @@
                     {% else %}
                         <button disabled type="submit" class="scanner__button">Сканнер неактивен</button>
                     {% endif %}
-                    <button id="btn_del_{{ scanner.id }}" type="submit" class="scanner__button button-delete"
+                    <button id="btn_del_{{ scanner.id }}" type="submit" class="scanner__button button-delete button-red"
                             onclick="delete_scanner({{ scanner.id }});">Удалить</button>
                 </div>
             </div>

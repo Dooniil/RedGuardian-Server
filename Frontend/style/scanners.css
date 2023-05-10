@@ -70,11 +70,23 @@
 }
 .button-delete {
     margin-left: 10px;
+}
+.button-red {
     color: white;
     background-color: #CC0605;
 }
-.button-delete:hover {
+.button-red:hover {
     background-color: #E32636;
+}
+.button-update {
+    margin-left: 10px;
+}
+.button-blue {
+    color: white;
+    background-color: #2982ff;
+}
+.button-blue:hover {
+    background-color: #1474fa;
 }
 
 

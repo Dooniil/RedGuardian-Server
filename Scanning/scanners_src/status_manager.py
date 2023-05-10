@@ -20,10 +20,13 @@ class StatusManager:
             except ConnectionRefusedError:
                 pass
 
-        if self.scanner_active_connections:
-            async with asyncio.TaskGroup() as tg:
-                tasks = [tg.create_task(ping(conn_data[0], conn_data[1], scanner_id))
-                         for scanner_id, conn_data in self.scanner_active_connections.items()]
+        try:
+            if self.all_scanner:
+                async with asyncio.TaskGroup() as tg:
+                    tasks = [tg.create_task(ping(scanner.get('address'), scanner.get('port'), scanner.get('id')))
+                             for scanner in self.all_scanner]
+        except Exception as e:
+            pass
 
 
 status_manager: StatusManager = StatusManager()

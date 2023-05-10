@@ -38,6 +38,7 @@ class ScannerHandler:
         status_manager.all_scanner.clear()
         try:
             status_manager.all_scanner.extend([scanner._data[0].repr for scanner in await Scanner.get_all()])
+            await ScannerHandler.fetch_changes_scanners()
         except Exception as e:
             raise ScannerException(f'Ошибка во время обновления списка сканеров\nСообщение: {e.args}')
 
@@ -50,7 +51,7 @@ class ScannerHandler:
     @staticmethod
     async def get_active_scanners() -> dict.items:
         await status_manager.check_conn()  # update list of active scanners
-        return status_manager.scanner_active_connections
+        # return status_manager.scanner_active_connections
 
     # @staticmethod
     # async def disconnect_scanner(scanner_id: int) -> dict:
@@ -121,10 +122,11 @@ class ScannerHandler:
                 tasks = [ping_tg.create_task(ping(str(host))) for host in network.hosts()]
 
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e}
+            pass
         finally:
             if is_new_scanners:
                 await ScannerHandler.fetch_changes_scanners()
+            else:
+                await ScannerHandler.fetch_changes_active()
 
-            await ScannerHandler.fetch_changes_active()
             return {'status': 0}
