@@ -14,13 +14,18 @@ class StatusManager:
             try:
                 conn_sender = SenderMsg(host, port)
                 async with conn_sender:
-                    await conn_sender.send_msg(type_msg=Message.CONNECTION)
-            except TimeoutError:
+                    await conn_sender.send_msg(type_msg=Message.PING)
+                    name = await conn_sender.read_msg()
+
+                    for scanner in self.all_scanner:
+                        if scanner.get('name') == name:
+                            self.scanner_active_connections[scanner.get('id')] = (scanner.get('address'), scanner.get('port'))
+
+            except Exception:
                 self.scanner_active_connections.pop(id)
-            except ConnectionRefusedError:
-                pass
 
         try:
+            self.scanner_active_connections.clear()
             if self.all_scanner:
                 async with asyncio.TaskGroup() as tg:
                     tasks = [tg.create_task(ping(scanner.get('address'), scanner.get('port'), scanner.get('id')))
@@ -29,4 +34,4 @@ class StatusManager:
             pass
 
 
-status_manager: StatusManager = StatusManager()
+status_manager = StatusManager()

@@ -29,7 +29,7 @@ async function delete_scanner(id) {
         .then((resp) => resp.json())
         .then(async (data) => {
             if (data.status == 0) {
-                await update_scanners_list();
+                await add_scanner_items();
             }
         })
         .catch(function(error) {
@@ -38,7 +38,7 @@ async function delete_scanner(id) {
 }
 
 
-async function update_scanners() {
+async function add_scanner_items() {
     let url = `api/scanners/all`;
 
     await fetch(url=url)
@@ -54,21 +54,20 @@ async function update_scanners() {
         })
 }
 
-async function update_scanners_list() {
+async function update_scanner_list() {
     let url = `api/scanners/update_all`;
     let btn = document.getElementById('button-update');
     btn.textContent = '------';
-//    btn.disabled = true;
+    btn.disabled = true;
 
     await fetch(url=url)
         .then((resp) => resp.json())
-        .then((data) => {
-            btn.textContent = 'Обновить список';
-//            btn.disabled = false;
-            clearContent('scanner-items');
-            data.forEach(async (scanner) => {
-                addScanner(scanner.id, scanner.name, scanner.active, scanner.in_use);
-            })
+        .then(async (data) => {
+            if (data.status == 0) {
+                btn.textContent = 'Обновить список';
+                btn.disabled = false;
+                await add_scanner_items();
+            }
         })
         .catch(function(error) {
             console.log(error);
@@ -110,7 +109,7 @@ async function discovery_scanners() {
     const port = document.getElementById('port').value;
     let btn = document.getElementById('button_hd');
     btn.textContent = '------';
-//    btn.disabled = true;
+    btn.disabled = true;
 
     let url = `api/scanners/search`;
 
@@ -126,8 +125,8 @@ async function discovery_scanners() {
         .then(async (data) => {
             if (data.status == 0) {
                 btn.textContent = 'Искать службы сканирования';
-//                btn.disabled = false;
-                await update_scanners();
+                btn.disabled = false;
+                await add_scanner_items();
             }
         })
         .catch(function(error) {

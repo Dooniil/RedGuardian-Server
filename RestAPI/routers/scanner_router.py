@@ -20,15 +20,14 @@ async def get_all_scanner():
 
 @scanner_router.get('/update_all')
 async def update_list_scanners():
-    await ScannerHandler.get_active_scanners()
+    await ScannerHandler.check_scanners_activity()
     await ScannerHandler.fetch_changes_active()
-    return await ScannerHandler.get_all_scanners()
-
+    return {'status': 0}
 
 # Get only active (turn on) scanner
 # @scanner_router.get('/active')
-# async def get_active_scanners():
-#     return await ScannerHandler.get_active_scanners()
+# async def check_scanners_activity():
+#     return await ScannerHandler.check_scanners_activity()
 
 
 # @scanner_router.delete('/active')

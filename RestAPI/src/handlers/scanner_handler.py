@@ -15,8 +15,10 @@ class ScannerHandler:
     async def delete_scanner(scanner_id):
         try:
             await Scanner.delete(scanner_id)
-            status_manager.scanner_active_connections.pop(scanner_id)
-            status_manager.all_scanner.pop(scanner_id)
+            status_manager.scanner_active_connections.pop(scanner_id) if scanner_id in status_manager.scanner_active_connections else ...
+            for i, scanner in enumerate(status_manager.all_scanner):
+                if scanner.get('id') == scanner_id:
+                    status_manager.all_scanner.pop(i)
             return {'status': 0}
         except Exception as e:
             return {'status': 'Error', 'error_msg': e.args}
@@ -38,7 +40,7 @@ class ScannerHandler:
         status_manager.all_scanner.clear()
         try:
             status_manager.all_scanner.extend([scanner._data[0].repr for scanner in await Scanner.get_all()])
-            await ScannerHandler.fetch_changes_scanners()
+            await ScannerHandler.fetch_changes_active()
         except Exception as e:
             raise ScannerException(f'Ошибка во время обновления списка сканеров\nСообщение: {e.args}')
 
@@ -47,22 +49,12 @@ class ScannerHandler:
         for scanner in status_manager.all_scanner:
             if scanner.get('id') in status_manager.scanner_active_connections:
                 scanner.update(active=True)
+            else: 
+                 scanner.update(active=False) if scanner.get('active') else ...
 
     @staticmethod
-    async def get_active_scanners() -> dict.items:
+    async def check_scanners_activity() -> dict.items:
         await status_manager.check_conn()  # update list of active scanners
-        # return status_manager.scanner_active_connections
-
-    # @staticmethod
-    # async def disconnect_scanner(scanner_id: int) -> dict:
-    #     try:
-    #         status_manager.scanner_active_connections.pop(scanner_id)
-    #         for scanner in status_manager.all_scanner:
-    #             if scanner.get('id') == scanner_id:
-    #                 scanner.pop('active')
-    #         return {'status': 'Done'}
-    #     except Exception:
-    #         raise {'status': 'Error', 'error_msg': 'There\'s no one scanner with such a name'}
 
     @staticmethod
     async def specify_scanner(scanner_id: int):
@@ -109,8 +101,8 @@ class ScannerHandler:
                     await ping_sender.send_msg(type_msg=Message.PING)
                     name = await ping_sender.read_msg()
 
-                is_new_scanners, id = await check_in_db(name, str(host))
-                status_manager.scanner_active_connections[id] = (str(host), port)
+                is_new_scanners, id = await check_in_db(name, host)
+                status_manager.scanner_active_connections[id] = (host, port)
             except ConnectionRefusedError as e:
                 print(ScannerException(f'Ошибка во время пинг запроса службе сканирования\nСообщение: {e.args}'))
             except TimeoutError:
@@ -118,6 +110,7 @@ class ScannerHandler:
 
         try:
             network = ipaddress.ip_network(subnet)
+            status_manager.scanner_active_connections.clear()
             async with asyncio.TaskGroup() as ping_tg:
                 tasks = [ping_tg.create_task(ping(str(host))) for host in network.hosts()]
 
