@@ -65,3 +65,4 @@ class BehaviorModel:
             return {'status': 'Error', 'error_msg': e.args}
 
         return instance.repr
+    

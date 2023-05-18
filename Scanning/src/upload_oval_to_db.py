@@ -1,7 +1,7 @@
 import aiofiles
 import aiofiles.os
 import os
-from db.entities.Json_definition import JsonDefinition
+from db.entities.Definition import JsonDefinition
 import json
 
 path = os.sep.join([os.getcwd(), 'db', 'json'])
