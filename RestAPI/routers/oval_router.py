@@ -17,6 +17,7 @@ async def scan_definition():
 @def_router.get('/exec_definitions')
 async def get_exec_definition():
     try:
-        await generate_execute_definition()
+        count = await generate_execute_definition()
+        return {'status': 'Done', 'count': count}
     except Exception as e:
         return {'status': 1, 'message': str(e)}
