@@ -64,5 +64,6 @@ class BehaviorModel:
         except Exception as e:
             return {'status': 'Error', 'error_msg': e.args}
 
-        return instance.repr
+        return instance
+
     

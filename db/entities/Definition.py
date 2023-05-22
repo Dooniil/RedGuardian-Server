@@ -18,7 +18,7 @@ class JsonDefinition(async_db_session.base, BehaviorModel):
         return {
             'id': self.id,
             'title': self.title,
-            'family_id': self.family,
+            'family': self.family,
             'description': self.description,
             'json_format': self.json_format,
             'execute_definition': self.execute_definition
@@ -40,7 +40,7 @@ class ExecDefinition(async_db_session.base, BehaviorModel):
         return {
             'id': self.id,
             'json_definition_id': self.json_definition_id,
-            'family_id': self.family,
+            'family': self.family,
             'type_def': self.type_def,
             'scripts': self.scripts
         }

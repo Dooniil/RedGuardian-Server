@@ -18,11 +18,18 @@ class HostHandler:
 
         if groups:
             for id in groups:
-                instance = await GroupHosts.get_relationship(id, GroupHosts.hosts)
-                instance.hosts.append(host.id)
+                group_with_relation = await GroupHosts.get_relationship(id, GroupHosts.hosts)
+                group_with_relation.hosts.append(host)
 
-        return host
+        return host.repr
     
+    @staticmethod
+    async def get_host(host_id):
+        try:
+            return await Host.get_relationship(host_id, Host.groups)
+        except Exception as e:
+            return {'status': 'Error', 'error_msg': e.args}
+
     # TODO: code
     @staticmethod
     async def update_host(host_info):

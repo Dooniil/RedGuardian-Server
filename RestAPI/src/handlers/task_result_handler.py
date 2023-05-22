@@ -19,6 +19,6 @@ class TaskResultHandler:
     @staticmethod
     async def get_task_result(id: int):
         try:
-            return await TaskResult.get_relationship(id, TaskResult.scan_results)
+            return (await TaskResult.get_relationship(id, TaskResult.scan_results)).repr
         except Exception as e:
             return {'status': 'Error', 'error_msg': e.args}

@@ -4,9 +4,9 @@ from db.entities.Definition import JsonDefinition, ExecDefinition
 async def generate_execute_definition():
     count = 0
     for json_def in await JsonDefinition.get_all():
-        exec_def = await json_def._data[0].get_relationship(json_def._data[0].id, JsonDefinition.execute_definition)
+        exec_def = (await json_def._data[0].get_relationship(json_def._data[0].id, JsonDefinition.execute_definition)).repr
         if not exec_def.get('execute_definition'):
-            if exec_def.get('family_id') != 1:
+            if exec_def.get('family') != 1:
                 continue
             exec_dict = dict(
                 json_definition_id=json_def._data[0].id,

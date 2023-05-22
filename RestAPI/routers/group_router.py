@@ -7,5 +7,10 @@ group_router = APIRouter(prefix='/groups', tags=['Groups'])
 
 @group_router.post('/')
 async def create_group(group_info: GroupModel):
-    instance = await GroupHandler.create_host(group_info)
+    instance = await GroupHandler.create_group(group_info)
+    return instance
+
+@group_router.get('/{id}')
+async def get_group(id: int):
+    instance = await GroupHandler.get_group(id)
     return instance

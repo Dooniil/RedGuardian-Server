@@ -1,26 +1,24 @@
-from sqlalchemy import Column, String, DateTime, Integer, select, ForeignKey
+from sqlalchemy import Column, String, DateTime, Integer, select, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from db.database import async_db_session
 from db.entities.behavior_model import BehaviorModel
 
 
-class GroupsHosts(async_db_session.base, BehaviorModel):
-    __tablename__ = 'groups_hosts'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    group_id = Column(Integer, ForeignKey('group_hosts.id'), primary_key=True)
-    host_id = Column(Integer, ForeignKey('host.id'), primary_key=True)
-    # group = relationship('GroupHosts', backref="host_bref")
-    # host = relationship('Host', backref="group_bref")
+GroupsHosts = Table('GroupsHosts', async_db_session.metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('group_id', ForeignKey('group_hosts.id'), primary_key=True),
+    Column('host_id', ForeignKey('host.id'), primary_key=True),
+)
 
 
 class GroupHosts(async_db_session.base, BehaviorModel):
     __tablename__ = 'group_hosts'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False)
+    name = Column(String, unique=True, nullable=False)
     description = Column(String, nullable=True)
-    hosts = relationship('Host', secondary='groups_hosts', lazy='dynamic')
+    hosts = relationship('Host', secondary='GroupsHosts', backref='group_hosts')
     created_at = Column(DateTime(timezone=False), server_default=func.now())
     updated_at = Column(DateTime(timezone=False), server_default=func.now(), onupdate=func.now())
 
@@ -42,10 +40,10 @@ class Host(async_db_session.base, BehaviorModel):
     id = Column(Integer, primary_key=True, autoincrement=True)
     ip = Column(String, nullable=True, unique=True)
     description = Column(String, nullable=True)
-    dns = Column(String, nullable=True)
+    dns = Column(String, nullable=True, unique=True)
     family = Column(Integer, nullable=True)
     cpe = Column(String, nullable=True)
-    groups = relationship('GroupHosts', secondary='groups_hosts')
+    groups = relationship('GroupHosts', secondary='GroupsHosts', backref='host')
     created_at = Column(DateTime(timezone=False), server_default=func.now())
     updated_at = Column(DateTime(timezone=False), server_default=func.now(), onupdate=func.now())
 
