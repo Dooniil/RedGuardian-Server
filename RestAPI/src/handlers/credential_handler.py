@@ -12,12 +12,12 @@ platform_table = {
 
 
 class CredentialHandler:
-
     @staticmethod
     async def create_new_credential(c_type, data: CredentialModel):
         cred_dict = data.dict()
+        encrypted_login: bytes = EncyptionManager.encrypt(cred_dict.get('login'))
         encrypted_password: bytes = EncyptionManager.encrypt(cred_dict.get('password'))
-        cred_dict.update(platform_id=platform_table.get(c_type), password=encrypted_password)
+        cred_dict.update(login=encrypted_login, family=platform_table.get(c_type), password=encrypted_password)
 
         try:
             new_instance = await Credential.create(**cred_dict)

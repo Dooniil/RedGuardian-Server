@@ -13,6 +13,7 @@ class TaskStatus(Enum):
 
 class TaskType(Enum):
     HOST_DISCOVERY = 0
+    VULNERABILITY = 1
 
 
 class TaskModel(BaseModel):

@@ -10,7 +10,7 @@ async def generate_execute_definition():
                 continue
             exec_dict = dict(
                 json_definition_id=json_def._data[0].id,
-                family_id=json_def._data[0].family_id,
+                family=json_def._data[0].family,
                 scripts=list()
             )
 

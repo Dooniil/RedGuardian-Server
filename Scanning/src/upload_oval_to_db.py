@@ -16,13 +16,13 @@ async def upload_ovals():
             json_text = await write_handle.read()
             
         if 'win_def' in file:
-                family = 1
+            family = 1
         elif 'nix_def' in file:
             family = 2
 
         oval_dict: dict = json.loads(json_text)
         title = oval_dict['definitions'][0]['metadata']['title']
         description = oval_dict['definitions'][0]['metadata']['description']
-        def_dict.update(json_format=oval_dict, family_id=family, title=title, description=description) 
+        def_dict.update(json_format=oval_dict, family=family, title=title, description=description) 
 
         await JsonDefinition.create(**def_dict)

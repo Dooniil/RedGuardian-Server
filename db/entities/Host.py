@@ -30,6 +30,7 @@ class GroupHosts(async_db_session.base, BehaviorModel):
             'id': self.id,
             'name': self.name,
             'description': self.description,
+            'hosts': self.hosts,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
@@ -39,9 +40,11 @@ class Host(async_db_session.base, BehaviorModel):
     __tablename__ = 'host'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    ip = Column(String, nullable=False, unique=True)
+    ip = Column(String, nullable=True, unique=True)
     description = Column(String, nullable=True)
     dns = Column(String, nullable=True)
+    family = Column(Integer, nullable=True)
+    cpe = Column(String, nullable=True)
     groups = relationship('GroupHosts', secondary='groups_hosts')
     created_at = Column(DateTime(timezone=False), server_default=func.now())
     updated_at = Column(DateTime(timezone=False), server_default=func.now(), onupdate=func.now())

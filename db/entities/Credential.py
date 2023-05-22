@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, LargeBinar
 from sqlalchemy.sql import func, cast
 from sqlalchemy.orm import relationship
 from db.database import async_db_session
-from db.entities.Family import Family
 from db.entities.behavior_model import BehaviorModel
 
 
@@ -13,7 +12,7 @@ class Credential(async_db_session.base, BehaviorModel):
     name = Column(String(100), nullable=False)
     login = Column(String(100), nullable=False)
     password = Column(LargeBinary, nullable=False)
-    family_id = Column(Integer, ForeignKey('family.id'))
+    family = Column(Integer, nullable=False)
     # platform = relationship('Platform', back_populates="credentials")
     created_at = Column(DateTime(timezone=False), server_default=func.now())
     updated_at = Column(DateTime(timezone=False), server_default=func.now(), onupdate=func.now())
@@ -25,7 +24,7 @@ class Credential(async_db_session.base, BehaviorModel):
             'name': self.name,
             'login': self.login,
             'password': 'encrypted',
-            'family_id': self.platform_id,
+            'family': self.family,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }

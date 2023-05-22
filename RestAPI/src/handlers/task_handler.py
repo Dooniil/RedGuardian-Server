@@ -29,6 +29,23 @@ class TaskHandler:
             return {'status': 'Error', 'error_msg': e.args}
 
     @staticmethod
+    async def create_task_vuln(task_info: BaseModel, vuln_info: BaseModel):
+        task_dict: dict = task_info.dict()
+        vuln_dict: dict = vuln_info.dict()
+        
+        task_dict.update(
+            task_type=TaskType.VULNERABILITY.value,
+            status=TaskStatus.CREATED.value,
+            custom_settings=vuln_dict
+        )
+        try:
+            new_task = await Task.create(**task_dict)
+            await TaskHandler.send_task(new_task.repr)
+            return new_task.repr
+        except Exception as e:
+            return {'status': 'Error', 'error_msg': e.args}
+
+    @staticmethod
     async def send_task(task_dict: dict):
         custom_setting_dict = task_dict.get('custom_settings')
         scanner_id = task_dict.get('scanner_id')
