@@ -2,9 +2,9 @@ from pydantic import BaseModel
 
 
 class HostModel(BaseModel):
+    ip: str | None
     description: str | None
     groups: list[int] | None
-    ip: str | None
     dns: str | None
     family: int | None
     cpe: str | None

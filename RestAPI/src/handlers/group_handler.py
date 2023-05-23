@@ -21,8 +21,19 @@ class GroupHandler:
     @staticmethod
     async def get_group(group_id):
         try:
-            instance = await GroupHosts.get_relationship(group_id, GroupHosts.hosts)
-            return instance.repr
+            instance_dict = (await GroupHosts.get_relationship(group_id, GroupHosts.hosts)).repr
+            host_list = list()
+            for host in instance_dict.get('hosts'):
+                host_list.append(dict(
+                    id=host.id, 
+                    ip=host.ip, 
+                    description=host.description,
+                    dns=host.dns,
+                    family=host.family,
+                    cpe=host.cpe
+                    ))
+            instance_dict['hosts'] = host_list
+            return instance_dict
         except Exception as e:
             return {'status': 'Error', 'error_msg': e.args}
 

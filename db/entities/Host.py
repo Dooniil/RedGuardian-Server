@@ -54,6 +54,8 @@ class Host(async_db_session.base, BehaviorModel):
             'ip': self.ip,
             'description': self.description,
             'dns': self.dns,
+            'family': self.family,
+            'cpe': self.cpe,
             'groups': self.groups,
             'created_at': self.created_at,
             'updated_at': self.updated_at

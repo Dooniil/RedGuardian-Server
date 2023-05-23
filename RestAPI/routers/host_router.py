@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from RestAPI.models.HostModel import HostModel
 from RestAPI.src.handlers.host_handler import HostHandler
 
+
 host_router = APIRouter(prefix='/hosts', tags=['Hosts'])
 
 

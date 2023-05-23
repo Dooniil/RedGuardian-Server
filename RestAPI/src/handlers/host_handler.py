@@ -26,8 +26,12 @@ class HostHandler:
     @staticmethod
     async def get_host(host_id):
         try:
-            instance = await Host.get_relationship(host_id, Host.groups)
-            return instance.repr
+            instance_dict = (await Host.get_relationship(host_id, Host.groups)).repr
+            group_list = list()
+            for group in instance_dict.get('groups'):
+                group_list.append(dict(id=group.id, name=group.name, description=group.description))
+            instance_dict['groups'] = group_list
+            return instance_dict
         except Exception as e:
             return {'status': 'Error', 'error_msg': e.args}
 
