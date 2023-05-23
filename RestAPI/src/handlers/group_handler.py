@@ -11,24 +11,53 @@ class GroupHandler:
 
         if host_list:
             for id in host_list:
-                host_instance = await Host.get(id)
-                if host_instance:
-                    group_with_relation = await GroupHosts.get_relationship(id, GroupHosts.hosts)
-                    group_with_relation.hosts.append(host_instance)
+                host_instance = await Host.get_relationship(id, Host.groups)
+                group_with_relation = await GroupHosts.get_relationship(id, GroupHosts.hosts)
+                group_with_relation.hosts.append(host_instance)
+            await GroupHosts.update(group.id, dict(name=name, description=description))
 
-        return group.repr
+        return {'status': 'Done', 'group_id': group.id}
     
     @staticmethod
     async def get_group(group_id):
         try:
-            return await GroupHosts.get_relationship(group_id, GroupHosts.hosts).repr
+            instance = await GroupHosts.get_relationship(group_id, GroupHosts.hosts)
+            return instance.repr
         except Exception as e:
             return {'status': 'Error', 'error_msg': e.args}
 
     # TODO: code
     @staticmethod
-    async def update_host(host_info):
-        pass
+    async def update_group(group_id, new_group_info):
+        group_with_relation = await GroupHosts.get_relationship(group_id, GroupHosts.hosts)
+        group_dict = group_with_relation.repr
+
+        for k, v in new_group_info.dict().items():
+            if v and k != 'host_id_list':
+                group_dict[k] = v
+        try:
+            host_list = new_group_info.dict().get('host_id_list') #  id измененных хостов
+            if host_list: # если не пустой
+                for host in group_dict.get('hosts'):
+                    if host.id not in host_list:
+                        host_with_relation = await Host.get_relationship(host.id, Host.groups)
+                        group_with_relation.hosts.remove(host_with_relation)
+
+                for id in host_list:
+                    host_with_relation = await Host.get_relationship(id, Host.groups)
+                    if host_with_relation not in group_dict.get('hosts'):
+                        group_with_relation.hosts.append(host_with_relation)
+
+            else: # если пустой, то удаляем все хосты
+                for host in group_dict.get('hosts'):
+                    host_with_relation = await Host.get_relationship(host.id, Host.groups)
+                    group_with_relation.hosts.remove(host_with_relation)
+
+            group_dict.pop('hosts') # чтобы обновить без групп
+            await GroupHosts.update(group_id, group_dict)
+            return {'status': 'Done'}
+        except Exception as e:
+            return {'status': 'Error', 'error_msg': e.args}
 
     @staticmethod
     async def create_host_by_hd_result(hd_result):

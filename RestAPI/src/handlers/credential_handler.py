@@ -64,7 +64,9 @@ class CredentialHandler:
 
     @staticmethod
     async def update_credential(c_id: int, data: CredentialModelOptional):
-        cred_dict = {}
+        cred_instance = await Credential.get(c_id)
+        cred_dict = cred_instance.repr
+        
         for k, v in data.dict().items():
             if v:
                 cred_dict[k] = v

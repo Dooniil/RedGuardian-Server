@@ -10,7 +10,7 @@ class HostModel(BaseModel):
     cpe: str | None
 
 class GroupModel(BaseModel):
-    name: str
+    name: str | None
     description: str | None
     host_id_list: list[int] | None
 

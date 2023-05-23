@@ -7,8 +7,8 @@ from db.entities.behavior_model import BehaviorModel
 
 GroupsHosts = Table('GroupsHosts', async_db_session.metadata,
     Column('id', Integer, primary_key=True, autoincrement=True),
-    Column('group_id', ForeignKey('group_hosts.id'), primary_key=True),
-    Column('host_id', ForeignKey('host.id'), primary_key=True),
+    Column('group_id', ForeignKey('group_hosts.id')),
+    Column('host_id', ForeignKey('host.id')),
 )
 
 
@@ -18,7 +18,7 @@ class GroupHosts(async_db_session.base, BehaviorModel):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, unique=True, nullable=False)
     description = Column(String, nullable=True)
-    hosts = relationship('Host', secondary='GroupsHosts', backref='group_hosts')
+    hosts = relationship('Host', secondary='GroupsHosts', back_populates='groups')
     created_at = Column(DateTime(timezone=False), server_default=func.now())
     updated_at = Column(DateTime(timezone=False), server_default=func.now(), onupdate=func.now())
 
@@ -43,7 +43,7 @@ class Host(async_db_session.base, BehaviorModel):
     dns = Column(String, nullable=True, unique=True)
     family = Column(Integer, nullable=True)
     cpe = Column(String, nullable=True)
-    groups = relationship('GroupHosts', secondary='GroupsHosts', backref='host')
+    groups = relationship('GroupHosts', secondary='GroupsHosts', back_populates='hosts')
     created_at = Column(DateTime(timezone=False), server_default=func.now())
     updated_at = Column(DateTime(timezone=False), server_default=func.now(), onupdate=func.now())
 

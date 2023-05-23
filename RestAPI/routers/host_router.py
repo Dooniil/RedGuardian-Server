@@ -14,3 +14,8 @@ async def create_host(host_info: HostModel):
 async def get_host(id: int):
     instance = await HostHandler.get_host(id)
     return instance
+
+@host_router.put('/{id}')
+async def update_host(id: int, host_info: HostModel):
+    instance = await HostHandler.update_host(id, host_info)
+    return instance

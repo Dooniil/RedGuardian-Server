@@ -14,3 +14,8 @@ async def create_group(group_info: GroupModel):
 async def get_group(id: int):
     instance = await GroupHandler.get_group(id)
     return instance
+
+@group_router.put('/{id}')
+async def update_group(id: int, group_info: GroupModel):
+    instance = await GroupHandler.update_group(id, group_info)
+    return instance
