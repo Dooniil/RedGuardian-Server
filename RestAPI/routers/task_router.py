@@ -13,7 +13,7 @@ async def create_host_discovery(task_info: TaskModel, host_discovery_info: HostD
     return await TaskHandler.create_task_hd(task_info, host_discovery_info)
 
 @task_router.post('/vulnerability')
-async def create_host_discovery(task_info: TaskModel, vulnerability_info: TaskVulnerabilityModel):
+async def create_vulnerability(task_info: TaskModel, vulnerability_info: TaskVulnerabilityModel):
     return await TaskHandler.create_task_vuln(task_info, vulnerability_info)
 
 # @task_router.post('/patch')

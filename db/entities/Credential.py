@@ -10,7 +10,7 @@ class Credential(async_db_session.base, BehaviorModel):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=False)
-    login = Column(String(100), nullable=False)
+    login = Column(LargeBinary, nullable=False)
     password = Column(LargeBinary, nullable=False)
     family = Column(Integer, nullable=False)
     # platform = relationship('Platform', back_populates="credentials")
@@ -23,7 +23,7 @@ class Credential(async_db_session.base, BehaviorModel):
             'id': self.id,
             'name': self.name,
             'login': self.login,
-            'password': 'encrypted',
+            'password': self.password,
             'family': self.family,
             'created_at': self.created_at,
             'updated_at': self.updated_at

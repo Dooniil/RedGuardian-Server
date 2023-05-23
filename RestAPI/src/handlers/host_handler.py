@@ -66,5 +66,13 @@ class HostHandler:
             return {'status': 'Error', 'error_msg': e.args}
         
     @staticmethod
+    async def delete_host(host_id):
+        try:
+            await Host.delete(host_id)
+            return {'status': 'Done'}
+        except Exception as e:
+            return {'status': 'Error', 'error_msg': e.args}
+        
+    @staticmethod
     async def create_host_by_hd_result(hd_result):
         pass

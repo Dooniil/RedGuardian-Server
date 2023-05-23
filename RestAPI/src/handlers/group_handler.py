@@ -60,5 +60,13 @@ class GroupHandler:
             return {'status': 'Error', 'error_msg': e.args}
 
     @staticmethod
+    async def delete_group(group_id):
+        try:
+            await GroupHosts.delete(group_id)
+            return {'status': 'Done'}
+        except Exception as e:
+            return {'status': 'Error', 'error_msg': e.args}
+        
+    @staticmethod
     async def create_host_by_hd_result(hd_result):
         pass

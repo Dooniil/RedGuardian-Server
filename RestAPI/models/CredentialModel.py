@@ -17,13 +17,15 @@ class PlatformOptional(str, Enum):
 
 class CredentialModel(BaseModel):
     name: str
-    login: str
+    login: bytes
     password: bytes
+    family: int
 
 
 class CredentialModelOptional(BaseModel):
     name: Optional[str] = None
-    login: Optional[str] = None
+    login: Optional[bytes] = None
     password: Optional[bytes] = None
+    family: Optional[int] = None
 
 

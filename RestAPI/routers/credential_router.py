@@ -30,19 +30,19 @@ async def get_credential(
     return response
 
 
-@credential_router.get('/{credential_id}')
-async def get_credential_by_id(credential_id: int):
-    response = await CredentialHandler.get_credential(credential_id)
+@credential_router.get('/{id}')
+async def get_credential_by_id(id: int):
+    response = await CredentialHandler.get_credential(id)
     return response
 
 
-@credential_router.put('/{credential_id}')
-async def post_credential(credential_id: int, new_data: CredentialModelOptional):
-    response = await CredentialHandler.update_credential(credential_id, new_data)
+@credential_router.put('/{id}')
+async def post_credential(id: int, new_data: CredentialModelOptional):
+    response = await CredentialHandler.update_credential(id, new_data)
     return response
 
 
-@credential_router.delete('/{credential_id}')
-async def delete_credential_by_id(credential_id: int):
-    response = await CredentialHandler.delete_credential(credential_id)
+@credential_router.delete('/{id}')
+async def delete_credential_by_id(id: int):
+    response = await CredentialHandler.delete_credential(id)
     return response
