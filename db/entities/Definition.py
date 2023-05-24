@@ -1,4 +1,4 @@
-from sqlalchemy import Column, JSON, Integer, String, ForeignKey, ARRAY
+from sqlalchemy import Column, JSON, Integer, String, ForeignKey, ARRAY, select
 from sqlalchemy.orm import relationship
 from db.database import async_db_session
 from db.entities.behavior_model import BehaviorModel
@@ -44,3 +44,9 @@ class ExecDefinition(async_db_session.base, BehaviorModel):
             'type_def': self.type_def,
             'scripts': self.scripts
         }
+    
+    @classmethod
+    async def get_by_family(cls, family) -> list:
+        stmt = select(cls).where(cls.family==family)
+        result = await async_db_session.execute(stmt)
+        return result.all()

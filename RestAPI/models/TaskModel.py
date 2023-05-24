@@ -17,7 +17,7 @@ class TaskType(Enum):
 
 
 class TaskModel(BaseModel):
-    name: str
+    name: str | None
     description: str | None
     credential_id: int | None
     scanner_id: int

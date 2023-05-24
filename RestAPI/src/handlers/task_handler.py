@@ -1,4 +1,6 @@
+import json
 from RestAPI.src.handlers.credential_handler import CredentialHandler
+from RestAPI.src.handlers.vulnerability_handler import VulnerabilityHandler
 from Scanning.scanners_src.sender_messages import SenderMsg
 from Scanning.scanners_src.status_manager import status_manager
 from db.entities.Task import Task
@@ -50,16 +52,25 @@ class TaskHandler:
         custom_setting_dict = task_dict.get('custom_settings')
         scanner_id = task_dict.get('scanner_id')
 
-        if scanner_id not in status_manager.scanner_active_connections:
-            return {'status': 'Error', 'error_msg': 'Scanner isn\'t active'}
+        # if scanner_id not in status_manager.scanner_active_connections:
+        #     return {'status': 'Error', 'error_msg': 'Scanner isn\'t active'}
 
-        host, port = status_manager.scanner_active_connections[scanner_id]
+        host, port = status_manager.scanner_active_connections.get(scanner_id)
 
+        cred_dict = None
         if task_dict.get('credential_id'):
             cred_dict = await CredentialHandler.get_credential(task_dict.get('credential_id'))
-        else:
-            cred_dict = None
+            cred_dict.update(login=cred_dict.get('login').decode(), password=cred_dict.get('password').decode())
+            cred_dict.pop('created_at')
+            cred_dict.pop('updated_at')
 
+        task_type = task_dict.get('task_type')
+        match task_type:
+            case 1:
+                family = cred_dict.get('family')
+                list_exec_definition = await VulnerabilityHandler.get_exec_definition(family)
+
+                
         task_sender = SenderMsg(host, port)
         request = {
             'type': RequestType.SAVE_TASK.value,
@@ -71,12 +82,18 @@ class TaskHandler:
             },
             'run_after_creation': task_dict.get('run_after_creation')
         }
-        async with task_sender:
-            await task_sender.send_msg(custom_msg=request)
+        if task_type == 1:
+            request['exec_defs'] = list_exec_definition
 
         try:
-            task_dict['status'] = TaskStatus.SENT.value
-            await Task.update(task_dict.get('id'), task_dict)
+            async with task_sender:
+                await task_sender.send_msg(custom_msg=request)
+                response = await task_sender.read_msg()
+                if response == 0:
+                    task_dict['status'] = TaskStatus.SENT.value
+                    await Task.update(task_dict.get('id'), task_dict)
+                else:
+                    raise Exception('Error sending task')
         except Exception as e:
             return {'status': 'Error', 'error_msg': e.args}
 
