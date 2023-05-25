@@ -22,11 +22,15 @@ class SenderMsg:
         msg: bytes = bytes()
         if custom_msg:
             msg: bytes = json.dumps(custom_msg).encode()
+            await self.split_data(msg)
         if type_msg:
             msg: bytes = type_msg.value.encode()
-
-        self.writer.write(msg)
-        await self.writer.drain()
+            self.writer.write(len(msg).to_bytes(1, 'big'))
+            await self.writer.drain()
+            response = await self.reader.read(1024)
+            if response == len(msg).to_bytes(1, 'big'):
+                self.writer.write(msg)
+                await self.writer.drain()
 
     async def read_msg(self):
         msg = (await self.reader.read(1536)).decode()
@@ -41,3 +45,11 @@ class SenderMsg:
         if exc_val:
             raise
 
+    async def split_data(self, data: bytes) -> bytes:
+        for chunk in (data[_:_+0xffff] for _ in range(0, len(data), 0xffff)):
+            self.writer.write(len(chunk).to_bytes(2, "big"))
+            await self.writer.drain()
+            self.writer.write(chunk)
+            await self.writer.drain()
+        self.writer.write(b'\x00\x00')
+        await self.writer.drain()

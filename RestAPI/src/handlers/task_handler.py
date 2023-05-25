@@ -52,8 +52,8 @@ class TaskHandler:
         custom_setting_dict = task_dict.get('custom_settings')
         scanner_id = task_dict.get('scanner_id')
 
-        # if scanner_id not in status_manager.scanner_active_connections:
-        #     return {'status': 'Error', 'error_msg': 'Scanner isn\'t active'}
+        if scanner_id not in status_manager.scanner_active_connections.keys():
+            raise Exception('Scanner isn\'t active')
 
         host, port = status_manager.scanner_active_connections.get(scanner_id)
 
