@@ -7,6 +7,7 @@ from db.entities.Task import Task
 from pydantic import BaseModel
 from RestAPI.models.TaskModel import TaskStatus, TaskType
 from Scanning.scanners_src.request_type import RequestType
+from db.entities.Host import Host
 
 
 class TaskHandler:
@@ -69,7 +70,10 @@ class TaskHandler:
             case 1:
                 family = cred_dict.get('family')
                 list_exec_definition = await VulnerabilityHandler.get_exec_definition(family)
-
+                hosts = list()
+                for id in custom_setting_dict.get('hosts_id'):
+                    host = await Host.get(id)
+                    hosts.append(dict(ip=host.ip, dns=host.dns, family=host.family, cpe=host.cpe))
                 
         task_sender = SenderMsg(host, port)
         request = {
@@ -77,18 +81,18 @@ class TaskHandler:
             'task_data': {
                 'task_id': task_dict.get('id'),
                 'type_task': task_dict.get('task_type'),
-                'settings': custom_setting_dict,
+                'settings': dict(hosts=hosts),
                 'credential': cred_dict
             },
             'run_after_creation': task_dict.get('run_after_creation')
         }
         if task_type == 1:
-            request['exec_defs'] = list_exec_definition
+            request['task_data']['exec_defs'] = list_exec_definition
 
         try:
             async with task_sender:
                 await task_sender.send_msg(custom_msg=request)
-                response = await task_sender.read_msg()
+                response = int(await task_sender.read_msg())
                 if response == 0:
                     task_dict['status'] = TaskStatus.SENT.value
                     await Task.update(task_dict.get('id'), task_dict)

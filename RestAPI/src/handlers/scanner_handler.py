@@ -49,6 +49,9 @@ class ScannerHandler:
         for scanner in status_manager.all_scanner:
             if scanner.get('id') in status_manager.scanner_active_connections:
                 scanner.update(active=True)
+                if scanner.get('in_use'):
+                    status_manager.in_use.append(scanner.get('id'))
+                    await EncyptionManager.send_key(scanner.get('address'), scanner.get('port'))
             else: 
                  scanner.update(active=False) if scanner.get('active') else ...
 

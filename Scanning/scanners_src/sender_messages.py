@@ -22,15 +22,15 @@ class SenderMsg:
         msg: bytes = bytes()
         if custom_msg:
             msg: bytes = json.dumps(custom_msg).encode()
-            await self.split_data(msg)
         if type_msg:
             msg: bytes = type_msg.value.encode()
-            self.writer.write(len(msg).to_bytes(1, 'big'))
-            await self.writer.drain()
-            response = await self.reader.read(1024)
-            if response == len(msg).to_bytes(1, 'big'):
-                self.writer.write(msg)
-                await self.writer.drain()
+            # self.writer.write(len(msg).to_bytes(1, 'big'))
+            # await self.writer.drain()
+            # response = await self.reader.read(1024)
+            # if response == len(msg).to_bytes(1, 'big'):
+            #     self.writer.write(msg)
+            #     await self.writer.drain()
+        await self.split_data(msg)
 
     async def read_msg(self):
         msg = (await self.reader.read(1536)).decode()
