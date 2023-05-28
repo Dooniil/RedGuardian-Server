@@ -20,7 +20,7 @@ class ScanResult(async_db_session.base, BehaviorModel):
             'task_result_id': self.task_result_id,
             'host_id': self.host_id,
             'custom_result': self.custom_result,
-            'exec_time': self.exec_time,
-            'start_at': self.start_at,
-            'end_at': self.end_at
+            # 'exec_time': self.exec_time,
+            # 'start_at': self.start_at,
+            # 'end_at': self.end_at
         }

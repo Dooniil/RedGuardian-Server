@@ -6,8 +6,8 @@ from RestAPI.src.encryption import EncyptionManager
 
 platform_table = {
     'Any': 0,
-    'Linux': 1,
-    'Windows': 2
+    'Windows': 1,
+    'Linux': 2
 }
 
 
@@ -69,6 +69,8 @@ class CredentialHandler:
         
         for k, v in data.dict().items():
             if v:
+                if k == 'login' or k == 'password':
+                    v = EncyptionManager.encrypt(v)
                 cred_dict[k] = v
         try:
             await Credential.update(c_id, cred_dict)

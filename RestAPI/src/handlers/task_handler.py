@@ -72,8 +72,8 @@ class TaskHandler:
                 list_exec_definition = await VulnerabilityHandler.get_exec_definition(family)
                 hosts = list()
                 for id in custom_setting_dict.get('hosts_id'):
-                    host = await Host.get(id)
-                    hosts.append(dict(ip=host.ip, dns=host.dns, family=host.family, cpe=host.cpe))
+                    host_instance = await Host.get(id)
+                    hosts.append(dict(id=id, ip=host_instance.ip, dns=host_instance.dns, family=host_instance.family, cpe=host_instance.cpe))
                 
         task_sender = SenderMsg(host, port)
         request = {
@@ -100,6 +100,61 @@ class TaskHandler:
                     raise Exception('Error sending task')
         except Exception as e:
             return {'status': 'Error', 'error_msg': e.args}
+
+    @staticmethod
+    async def send_task_by_id(id):
+        task_dict = (await Task.get(id)).repr
+        custom_setting_dict = task_dict.get('custom_settings')
+        scanner_id = task_dict.get('scanner_id')
+
+        if scanner_id not in status_manager.scanner_active_connections.keys():
+            raise Exception('Scanner isn\'t active')
+
+        host, port = status_manager.scanner_active_connections.get(scanner_id)
+
+        cred_dict = None
+        if task_dict.get('credential_id'):
+            cred_dict = await CredentialHandler.get_credential(task_dict.get('credential_id'))
+            cred_dict.update(login=cred_dict.get('login').decode(), password=cred_dict.get('password').decode())
+            cred_dict.pop('created_at')
+            cred_dict.pop('updated_at')
+
+        task_type = task_dict.get('task_type')
+        match task_type:
+            case 1:
+                family = cred_dict.get('family')
+                list_exec_definition = await VulnerabilityHandler.get_exec_definition(family)
+                hosts = list()
+                for id in custom_setting_dict.get('hosts_id'):
+                    host_instance = await Host.get(id)
+                    hosts.append(dict(id=id, ip=host_instance.ip, dns=host_instance.dns, family=host_instance.family, cpe=host_instance.cpe))
+                
+        task_sender = SenderMsg(host, port)
+        request = {
+            'type': RequestType.SAVE_TASK.value,
+            'task_data': {
+                'task_id': task_dict.get('id'),
+                'type_task': task_dict.get('task_type'),
+                'settings': dict(hosts=hosts),
+                'credential': cred_dict
+            },
+            'run_after_creation': task_dict.get('run_after_creation')
+        }
+        if task_type == 1:
+            request['task_data']['exec_defs'] = list_exec_definition
+
+        try:
+            async with task_sender:
+                await task_sender.send_msg(custom_msg=request)
+                response = int(await task_sender.read_msg())
+                if response == 0:
+                    task_dict['status'] = TaskStatus.SENT.value
+                    await Task.update(task_dict.get('id'), task_dict)
+                else:
+                    raise Exception('Error sending task')
+        except Exception as e:
+            return {'status': 'Error', 'error_msg': e.args}
+
 
     @staticmethod
     async def get_task_id(id_task):

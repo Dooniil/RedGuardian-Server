@@ -26,6 +26,11 @@ async def get_task(id: int):
     return await TaskHandler.get_task_id(id)
 
 
+@task_router.get('/send/{id}')
+async def send_task(id: int):
+    return await TaskHandler.send_task_by_id(id)
+
+
 @task_router.get('/run/{id}')
 async def run_task(id: int):
     return await TaskExecutionHandler.run_task(id)

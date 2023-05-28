@@ -1,5 +1,6 @@
 from db.entities.Scan_result import ScanResult
 from db.entities.Host import Host
+from RestAPI.src.handlers.host_handler import HostHandler
 
 
 class ResultAnalyzer:
@@ -27,4 +28,16 @@ class ResultAnalyzer:
 
             scan_dict.update(custom_result=custom_result)
 
+            await ScanResult.create(**scan_dict)
+    
+    @staticmethod
+    async def vulnerability_result_analyze(task_result_id: int, result_info: dict):
+        for host_id, vuln_info in result_info.items(): # int, dict
+            custom_result = {'vulnerability_id': vuln_info.get('vulnerabilities')}
+            scan_dict = dict(
+                task_result_id=task_result_id, 
+                host_id=int(host_id),
+                custom_result=custom_result
+                )
+            await HostHandler.update_host(int(host_id), new_host_info_dict=dict(cpe=vuln_info.get('cpe')))
             await ScanResult.create(**scan_dict)

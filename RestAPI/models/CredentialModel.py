@@ -5,14 +5,14 @@ from enum import Enum
 
 
 class Platform(str, Enum):
-    Linux = 'Linux',
     Windows = 'Windows',
+    Linux = 'Linux',
 
 
 class PlatformOptional(str, Enum):
     Any = 'Any'
-    Linux = 'Linux',
     Windows = 'Windows',
+    Linux = 'Linux',
 
 
 class CredentialModel(BaseModel):

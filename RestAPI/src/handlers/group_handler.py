@@ -37,7 +37,6 @@ class GroupHandler:
         except Exception as e:
             return {'status': 'Error', 'error_msg': e.args}
 
-    # TODO: code
     @staticmethod
     async def update_group(group_id, new_group_info):
         group_with_relation = await GroupHosts.get_relationship(group_id, GroupHosts.hosts)

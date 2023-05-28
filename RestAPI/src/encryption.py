@@ -15,7 +15,7 @@ class EncyptionManager:
     def encrypt(cls, data: bytes) -> bytes | None:
         public_key = serialization.load_pem_public_key(cls.public_key)
         encrypted_data = public_key.encrypt(
-            base64.b64encode(data),
+            data,
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
@@ -24,21 +24,7 @@ class EncyptionManager:
         )
         return base64.b64encode(encrypted_data)
 
-# def decrypt(password: str) -> str:
-#     path_private = os.sep.join([os.getcwd(), 'RestAPI', 'encry_src', 'private.pem'])
-#
-#     with open(path_private, "rb") as key_file:
-#         private_key = serialization.load_pem_private_key(key_file.read(), password=None)
-#
-#     decrypted_password: bytes = private_key.decrypt(
-#         password.encode('latin-1'),
-#         padding.OAEP(
-#             mgf=padding.MGF1(algorithm=hashes.SHA256()),
-#             algorithm=hashes.SHA256(),
-#             label=None
-#         )
-#     )
-#     return decrypted_password.decode('latin-1')
+
     @classmethod
     async def get_private_key(cls):
         path_private = os.sep.join([os.getcwd(), 'RestAPI', 'encry_src', 'private.pem'])

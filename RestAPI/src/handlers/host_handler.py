@@ -36,11 +36,16 @@ class HostHandler:
             return {'status': 'Error', 'error_msg': e.args}
 
     @staticmethod
-    async def update_host(host_id, new_host_info):
+    async def update_host(host_id, new_host_info_model=None, new_host_info_dict=None):
         host_instance = await Host.get_relationship(host_id, Host.groups)
         host_dict = host_instance.repr
 
-        for k, v in new_host_info.dict().items():
+        if new_host_info_model:
+            new_host_info = new_host_info.dict()
+        elif new_host_info_dict:
+            new_host_info = new_host_info_dict
+
+        for k, v in new_host_info.items():
             if v and k != 'groups':
                 host_dict[k] = v
         try:

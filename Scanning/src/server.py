@@ -6,19 +6,33 @@ from Scanning.scanners_src.ssl_manager import ssl_manager
 from Scanning.scanners_src.request_type import RequestType
 
 
-async def read_request(reader) -> str:
-    request = bytearray()
+async def readexactly(reader, bytes_count: int) -> bytes:
+    """
+    Функция приёма определённого количества байт
+    """
+    data_bytes = bytearray()
+    while len(data_bytes) < bytes_count: # Пока не получили нужное количество байт
+        part = await reader.read(bytes_count - len(data_bytes)) # Получаем оставшиеся байты
+        if not part: # Если из сокета ничего не пришло, значит его закрыли с другой стороны
+            raise IOError("Соединение потеряно")
+        data_bytes += part
+    return data_bytes
+
+async def reliable_receive(reader) -> bytes:
+    """
+    Функция приёма данных
+    Обратите внимание, что возвращает тип bytes
+    """
+    data_bytes = bytearray()
     while True:
-        request += await reader.read(1536)
-        reader.feed_eof()
-        if reader.at_eof():
-            return request.decode()
+        part_len = int.from_bytes(await readexactly(reader, 2), "big") # Определяем длину ожидаемого куска
+        if part_len == 0: # Если пришёл кусок нулевой длины, то приём окончен
+            return data_bytes
+        data_bytes += await readexactly(reader, part_len) # Считываем сам кусок
 
 
 async def controller_handler(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
-    request = await read_request(reader)
-    #  TODO send response
-
+    request = await reliable_receive(reader)
     try:
         data = json.loads(request)
         match data.get('type'):
@@ -34,7 +48,6 @@ async def controller_handler(reader: asyncio.StreamReader, writer: asyncio.Strea
                     'end_time': data.get('end_time'),
                     'exec_time': data.get('exec_time')
                 }
-                print(result_dict)
                 task_result = asyncio.create_task(ResultHandler.analyze_result(result_dict))
                 await task_result
     except json.decoder.JSONDecodeError:
