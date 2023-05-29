@@ -31,22 +31,16 @@ class Credential(async_db_session.base, BehaviorModel):
 
     @classmethod
     async def get_filter(cls, name: str,
-                         family_id: int,
-                         created_at: str,
-                         updated_at: str
+                         family_id: int
                          ):
         if family_id == 0:
             stmt = select(cls).where(
-                (cls.name.ilike(f'{name}%'))
-                # (cls.created_at >= created_at) &
-                # (cls.updated_at >= updated_at)
+                cls.name.ilike(f'{name}%')
             )
         else:
             stmt = select(cls).where(
                 (cls.name.ilike(f'{name}%')) &
-                (cls.family_id == family_id)
-                # (cls.created_at >= created_at) &
-                # (cls.updated_at >= updated_at)
+                (cls.family == family_id)
             )
         result = await async_db_session.execute(stmt)
         return result.all()

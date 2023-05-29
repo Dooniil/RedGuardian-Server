@@ -21,7 +21,7 @@ class ScannerHandler:
                     status_manager.all_scanner.pop(i)
             return {'status': 0}
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Статус': 'Ошибка', 'Сообщение': e}
 
     @staticmethod
     async def get_all_scanners():
@@ -33,7 +33,7 @@ class ScannerHandler:
             instance = await Scanner.get(id_scanner)
             return instance.repr
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Статус': 'Ошибка', 'Сообщение': e}
 
     @staticmethod
     async def fetch_changes_scanners():
@@ -54,6 +54,7 @@ class ScannerHandler:
                     await EncyptionManager.send_key(scanner.get('address'), scanner.get('port'))
             else: 
                  scanner.update(active=False) if scanner.get('active') else ...
+        return list(status_manager.scanner_active_connections.keys())
 
     @staticmethod
     async def check_scanners_activity() -> dict.items:
@@ -68,9 +69,9 @@ class ScannerHandler:
                 await Scanner.update(scanner_id, scanner_dict)
                 await EncyptionManager.send_key(scanner_dict.get('address'), scanner_dict.get('port'))
                 status_manager.in_use.append(scanner_id)
-                return {'status': 0}
+                return {'Статус': 'Завершено', 'Сообщение': 'Службу сканирования в работе'}
             except Exception as e:
-                return {'status': 'Error', 'error_msg': e}
+                return {'Статус': 'Ошибка', 'Сообщение': e}
 
     @staticmethod
     async def unspecify_scanner(scanner_id: int):
@@ -80,15 +81,15 @@ class ScannerHandler:
                 scanner_dict.update(in_use=False)
                 await Scanner.update(scanner_id, scanner_dict)
                 status_manager.in_use.remove(scanner_id)
-                return {'status': 0}
+                return {'Статус': 'Завершено', 'Сообщение': 'Службу сканирования исключена из работы'}
             except Exception as e:
-                return {'status': 'Error', 'error_msg': e}
+                return {'Статус': 'Ошибка', 'Сообщение': e}
 
     @staticmethod
     async def find_scanners(data):
         subnet, port = data.get('subnet'), data.get('port')
         is_new_scanners = False
-
+        found_scanners: list = list()
         async def check_in_db(name, addr):
             instance = await Scanner.get_by_name(name)
             if not instance:
@@ -106,8 +107,10 @@ class ScannerHandler:
 
                 is_new_scanners, id = await check_in_db(name, host)
                 status_manager.scanner_active_connections[id] = (host, port)
+                found_scanners.append(dict(id=id, host=host, port=port))
             except ConnectionRefusedError as e:
-                print(ScannerException(f'Ошибка во время пинг запроса службе сканирования\nСообщение: {e.args}'))
+                # print(ScannerException(f'Хост отклонил подключение'))
+                pass
             except TimeoutError:
                 pass
 
@@ -125,4 +128,8 @@ class ScannerHandler:
             else:
                 await ScannerHandler.fetch_changes_active()
 
-            return {'status': 0}
+            return {
+                'Статус': 'Завершено', 
+                'Сообщение': f'Найдено служб сканирования: {len(found_scanners)}', 
+                'ID служб сканирования': found_scanners
+                }

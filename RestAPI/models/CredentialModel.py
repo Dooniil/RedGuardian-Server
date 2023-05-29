@@ -19,7 +19,6 @@ class CredentialModel(BaseModel):
     name: str
     login: bytes
     password: bytes
-    family: int
 
 
 class CredentialModelOptional(BaseModel):

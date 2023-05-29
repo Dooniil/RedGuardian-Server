@@ -23,7 +23,7 @@ class CredentialHandler:
             new_instance = await Credential.create(**cred_dict)
             return new_instance.repr
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Статус': 'Ошибка', 'Сообщение': e}
 
 
     @staticmethod
@@ -32,34 +32,32 @@ class CredentialHandler:
             instance = await Credential.get(c_id)
             return instance.repr
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Статус': 'Ошибка', 'Сообщение': e}
 
 
     @staticmethod
-    async def get_credential_filter(name, created_date, updated_date, platform_type='Any'):
+    async def get_credential_filter(name, platform_type='Any'):
         name = '' if name is None else name
-        created_date = datetime(1991, 1, 1) if created_date is None else created_date
-        updated_date = datetime(1991, 1, 1) if updated_date is None else updated_date
         platform_id = platform_table.get(platform_type)
 
         try:
             instances = await Credential.get_filter(
-                name, platform_id, created_date, updated_date)
+                name, platform_id)
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Статус': 'Ошибка', 'Сообщение': e}
 
-        response = []
+        credentials = []
         for instance in instances:
-            response.append(instance[0].repr)
-        return response
+            credentials.append(instance[0].repr)
+        return credentials
 
     @staticmethod
     async def delete_credential(c_id):
         try:
             await Credential.delete(c_id)
-            return {'status': 'Done'}
+            return {'Статус': 'Завершено', 'Сообщение': f'Учетная запись (id = {c_id}) удалена'}
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Статус': 'Ошибка', 'Сообщение': e}
 
 
     @staticmethod
@@ -74,6 +72,6 @@ class CredentialHandler:
                 cred_dict[k] = v
         try:
             await Credential.update(c_id, cred_dict)
-            return {'status': 'Done'}
+            return cred_instance.repr
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Статус': 'Ошибка', 'Сообщение': e}

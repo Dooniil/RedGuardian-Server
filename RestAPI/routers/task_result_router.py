@@ -5,5 +5,5 @@ task_result_router = APIRouter(prefix='/task_result', tags=['Task Result'])
 
 
 @task_result_router.get('/{id}')
-async def get_task(id: int):
+async def get_result_task(id: int):
     return await TaskResultHandler.get_task_result(id)
