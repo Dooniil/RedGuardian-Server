@@ -1,8 +1,9 @@
 import json
 from os import getcwd, sep
+import sqlalchemy
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy import text
+from sqlalchemy import text, dialects
 
 
 class DatabaseException(Exception):
@@ -62,6 +63,27 @@ class AsyncDatabaseSession:
                        f"{host}:{port}/{name}"
         self._engine = create_async_engine(self._db_url, echo=True)
         self._session = sessionmaker(self._engine, expire_on_commit=False, class_=AsyncSession)()
+
+    async def check_scructure(self):
+        dialect = dialects.postgresql.dialect()
+        tables = self.metadata.tables
+        correct_table_list = [
+            tables['credential'],
+            tables['scanner'], 
+            tables['host'],
+            tables['group_hosts'],
+            tables['GroupsHosts'],
+            tables['task'],
+            tables['json_definition'],
+            tables['execute_definition'],
+            tables['task_result'],
+            tables['scan_result']
+            ]
+        for table in correct_table_list:
+            schema = sqlalchemy.schema.CreateTable(table, if_not_exists=True)
+            query = str(schema.compile(dialect=dialect))
+            await self.execute(text(query))
+            await self.commit()
 
 
 async_db_session = AsyncDatabaseSession()
