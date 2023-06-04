@@ -10,26 +10,41 @@ from Scanning.scanners_src.request_type import RequestType
 from db.entities.Host import Host
 
 
+type_hd = {
+    'Только поиск хостов': 0,
+    'Определение ОС': 1,
+    'Сканирование общих портов': 2,
+    'Сканирование всех портов': 3,
+    'Другое': 4
+}
+
+
+type_protocol = {
+    'TCP': 0,
+    'ICMP': 1,
+    'UDP': 2
+}
+
+
 class TaskHandler:
     @staticmethod
-    async def create_task_hd(task_info: BaseModel, hd_info: BaseModel):
+    async def create_task_hd(task_info: BaseModel, host_discovery_dict: dict):
         task_dict: dict = task_info.dict()
-        hd_dict: dict = hd_info.dict()
-        hd_dict.update(
-            type=hd_dict.get('type').value,
-            protocols=[item.value for item in hd_dict.get('protocols')]
+        host_discovery_dict.update(
+            type=type_hd.get((host_discovery_dict.get('type')).value),
+            protocols=[type_protocol.get(item.value) for item in host_discovery_dict.get('protocols')]
         )
         task_dict.update(
             task_type=TaskType.HOST_DISCOVERY.value,
             status=TaskStatus.CREATED.value,
-            custom_settings=hd_dict
+            custom_settings=host_discovery_dict
         )
         try:
             new_task = await Task.create(**task_dict)
-            await TaskHandler.send_task(new_task.repr)
-            return new_task.repr
+            response = await TaskHandler.send_task(new_task.repr)
+            return {'Статус': 'Завершено', 'ID Задания': new_task.id, 'Сообщение': response.get('Сообщение')}
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Cтатус': 'Ошибка', 'Сообщение': e}
 
     @staticmethod
     async def create_task_vuln(task_info: BaseModel, vuln_info: BaseModel):
@@ -43,10 +58,10 @@ class TaskHandler:
         )
         try:
             new_task = await Task.create(**task_dict)
-            await TaskHandler.send_task(new_task.repr)
-            return new_task.repr
+            response = await TaskHandler.send_task(new_task.repr)
+            return {'Статус': 'Завершено', 'ID Задания': new_task.id, 'Сообщение': response.get('Сообщение')}
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Cтатус': 'Ошибка', 'Сообщение': e}
 
     @staticmethod
     async def send_task(task_dict: dict):
@@ -54,7 +69,7 @@ class TaskHandler:
         scanner_id = task_dict.get('scanner_id')
 
         if scanner_id not in status_manager.scanner_active_connections.keys():
-            raise Exception('Scanner isn\'t active')
+            raise Exception('Служба сканирования не активна')
 
         host, port = status_manager.scanner_active_connections.get(scanner_id)
 
@@ -81,13 +96,15 @@ class TaskHandler:
             'task_data': {
                 'task_id': task_dict.get('id'),
                 'type_task': task_dict.get('task_type'),
-                'settings': dict(hosts=hosts),
                 'credential': cred_dict
             },
             'run_after_creation': task_dict.get('run_after_creation')
         }
-        if task_type == 1:
+        if task_type == 0:
+            request['task_data']['settings'] = task_dict.get('custom_settings')
+        elif task_type == 1:
             request['task_data']['exec_defs'] = list_exec_definition
+            request['task_data']['settings'] = dict(hosts=hosts)
 
         try:
             async with task_sender:
@@ -96,10 +113,11 @@ class TaskHandler:
                 if response == 0:
                     task_dict['status'] = TaskStatus.SENT.value
                     await Task.update(task_dict.get('id'), task_dict)
+                    return {'Статус': 'Завершено', 'Сообщение': 'Задание отправлено'}
                 else:
-                    raise Exception('Error sending task')
+                    raise Exception('Ошибка во время отправки задания')
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Cтатус': 'Ошибка', 'Сообщение': e}
 
     @staticmethod
     async def send_task_by_id(id):
@@ -108,7 +126,7 @@ class TaskHandler:
         scanner_id = task_dict.get('scanner_id')
 
         if scanner_id not in status_manager.scanner_active_connections.keys():
-            raise Exception('Scanner isn\'t active')
+            raise Exception('Служба сканирования не активна')
 
         host, port = status_manager.scanner_active_connections.get(scanner_id)
 
@@ -135,13 +153,15 @@ class TaskHandler:
             'task_data': {
                 'task_id': task_dict.get('id'),
                 'type_task': task_dict.get('task_type'),
-                'settings': dict(hosts=hosts),
                 'credential': cred_dict
             },
             'run_after_creation': task_dict.get('run_after_creation')
         }
-        if task_type == 1:
+        if task_type == 0:
+            request['task_data']['settings'] = task_dict.get('custom_settings')
+        elif task_type == 1:
             request['task_data']['exec_defs'] = list_exec_definition
+            request['task_data']['settings'] = dict(hosts=hosts)
 
         try:
             async with task_sender:
@@ -150,10 +170,11 @@ class TaskHandler:
                 if response == 0:
                     task_dict['status'] = TaskStatus.SENT.value
                     await Task.update(task_dict.get('id'), task_dict)
+                    return {'Статус': 'Завершено', 'Сообщение': 'Задание отправлено'}
                 else:
-                    raise Exception('Error sending task')
+                    raise Exception('Ошибка во время отправки задания')
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Cтатус': 'Ошибка', 'Сообщение': e}
 
 
     @staticmethod
@@ -162,4 +183,4 @@ class TaskHandler:
             instance = await Task.get(id_task)
             return instance.repr
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Cтатус': 'Ошибка', 'Сообщение': e}

@@ -13,7 +13,7 @@ class TaskExecutionHandler:
         scanner_id = task_dict.get('scanner_id')
 
         if scanner_id not in status_manager.scanner_active_connections:
-            return {'status': 'Error', 'error_msg': 'Scanner isn\'t active'}
+            return {'Статус': 'Ошибка', 'Сообщение': 'Сканер неактивен'}
 
         host, port = status_manager.scanner_active_connections[scanner_id]
 
@@ -26,3 +26,4 @@ class TaskExecutionHandler:
             await run_sender.send_msg(custom_msg=request)
         task_dict['status'] = TaskStatus.IN_PROGRESS.value
         await Task.update(task_dict.get('id'), task_dict)
+        return {'Статус': 'Завершено', 'Сообщение': 'Задание выполняется'}

@@ -2,18 +2,17 @@ from enum import Enum
 from pydantic import BaseModel
 
 
-class TypeHD(Enum):
-    Only_host_scan = 0
-    OS_identification = 1
-    Port_scan_common = 2
-    Port_scan_all = 3
-    Custom = 4
+class TypeHD(str, Enum):
+    Only_host_scan = 'Только поиск хостов'
+    OS_identification = 'Определение ОС'
+    Port_scan_common = 'Сканирование общих портов'
+    Port_scan_all = 'Сканирование всех портов'
 
 
 class TypeProtocol(Enum):
-    TCP = 0
-    ICMP = 1
-    UDP = 2
+    TCP = 'TCP'
+    ICMP = 'ICMP'
+    UDP = 'UDP'
 
 
 class HostDiscoveryModel(BaseModel):

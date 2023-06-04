@@ -42,7 +42,7 @@ class ScannerHandler:
             status_manager.all_scanner.extend([scanner._data[0].repr for scanner in await Scanner.get_all()])
             await ScannerHandler.fetch_changes_active()
         except Exception as e:
-            raise ScannerException(f'Ошибка во время обновления списка сканеров\nСообщение: {e.args}')
+            raise ScannerException(f'Ошибка во время обновления списка сканеров\nСообщение: {e}')
 
     @staticmethod
     async def fetch_changes_active():

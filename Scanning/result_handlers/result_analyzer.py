@@ -10,7 +10,7 @@ class ResultAnalyzer:
             scan_dict = {'task_result_id': task_result_id}
             host_instance = await Host.get_host_by_ip(host)
             if host_instance:
-               scan_dict.update(host_id=host_instance.id)
+               scan_dict.update(host_id=host_instance._data[0].id)
 
             custom_result = {'ip': host}
             # if settings.get('osmatch'):
@@ -33,7 +33,9 @@ class ResultAnalyzer:
     @staticmethod
     async def vulnerability_result_analyze(task_result_id: int, result_info: dict):
         for host_id, vuln_info in result_info.items(): # int, dict
-            custom_result = {'vulnerability_id': vuln_info.get('vulnerabilities')}
+            custom_result = {
+                'vulnerability_id': vuln_info.get('vulnerabilities'), 
+                'products_cpe': vuln_info.get('product')}
             scan_dict = dict(
                 task_result_id=task_result_id, 
                 host_id=int(host_id),

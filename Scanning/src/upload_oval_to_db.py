@@ -26,3 +26,4 @@ async def upload_ovals():
         def_dict.update(json_format=oval_dict, family=family, title=title, description=description) 
 
         await JsonDefinition.create(**def_dict)
+    return {'Статус': 'Завершено', 'Сообщение': f'Добавлено OVAL-определений в JSON: {len(os.listdir(path))}'}

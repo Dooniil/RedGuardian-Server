@@ -1,5 +1,6 @@
 from db.entities.Host import Host
 from db.entities.Host import GroupHosts
+from db.entities.Task_result import TaskResult
 
 class HostHandler:
     @staticmethod
@@ -21,7 +22,29 @@ class HostHandler:
                 group_with_relation.hosts.append(host)
             await Host.update(host.id, host_dict)
         
-        return {'status': 'Done', 'group_id': host.id}
+        return {'Статус': 'Завершено', 'ID хоста': host.id}
+
+    @staticmethod
+    async def create_host_by_hd(task_result_id, groups):
+        hosts_id = list()
+        task_result_instance = await TaskResult.get_relationship(task_result_id, TaskResult.scan_results)
+        for result in task_result_instance.scan_results:
+            host_dict = dict(
+                ip=result.custom_result['ip'],
+                dns=result.custom_result.get('dns')
+            )
+            if not result.host_id:
+                host = await Host.create(**host_dict)
+                hosts_id.append(host.id)
+                if groups:
+                    for id in groups:
+                        group_with_relation = await GroupHosts.get_relationship(id, GroupHosts.hosts)
+                        group_with_relation.hosts.append(host)
+                    await Host.update(host.id, host_dict)
+        return {
+            'Статус': 'Завершено', 
+            'Сообщение': f'Добавлено хостов: {len(hosts_id)}',
+            'ID хостов': hosts_id}
     
     @staticmethod
     async def get_host(host_id):
@@ -33,7 +56,7 @@ class HostHandler:
             instance_dict['groups'] = group_list
             return instance_dict
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Cтатус': 'Ошибка', 'Сообщение': e}
 
     @staticmethod
     async def update_host(host_id, new_host_info_model=None, new_host_info_dict=None):
@@ -70,18 +93,15 @@ class HostHandler:
 
             host_dict.pop('groups') # чтобы обновить без групп
             await Host.update(host_id, host_dict)
-            return {'status': 'Done'}
+            return {'Статус': 'Завершено'}
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Cтатус': 'Ошибка', 'Сообщение': e}
         
     @staticmethod
     async def delete_host(host_id):
         try:
             await Host.delete(host_id)
-            return {'status': 'Done'}
+            return {'Статус': 'Завершено'}
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Cтатус': 'Ошибка', 'Сообщение': e}
         
-    @staticmethod
-    async def create_host_by_hd_result(hd_result):
-        pass

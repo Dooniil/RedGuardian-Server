@@ -14,12 +14,12 @@ class TaskResultHandler:
             )
             return instance
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Cтатус': 'Ошибка', 'Сообщение': e}
 
     @staticmethod
     async def get_task_result(id: int):
         try:
-            task_result = (await TaskResult.get_relationship(id, TaskResult.scan_results)).repr
-
+            task_result = await TaskResult.get_relationship(id, TaskResult.scan_results)
+            return task_result
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Cтатус': 'Ошибка', 'Сообщение': e}

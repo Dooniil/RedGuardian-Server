@@ -5,6 +5,8 @@ import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+import json
+import os
 from db.database import async_db_session
 from Scanning.src.server import run_server
 from fastapi import FastAPI
@@ -51,17 +53,22 @@ async def startup():
 
 # connecting to DB, start REST API and Controller
 async def async_main() -> None:
-    # host = choose_host()
-    # host = '10.0.0.183'
-    host = '192.168.50.223'
+    path = os.sep.join([os.getcwd(), 'app_config.json'])
+    with open(path, 'r') as file:
+        app_config = json.loads(file.read())
+            
+    host = app_config.get('ip')
+    port_api = app_config.get('port_api')
+    port_handler = app_config.get('port_handler')
+
     await async_db_session.init()
     await async_db_session.check_connection()
 
-    config = uvicorn.Config("main:app", port=8083, host=host, log_level="info")
+    config = uvicorn.Config("main:app", port=port_api, host=host, log_level="info")
     server = uvicorn.Server(config)
 
     async with asyncio.TaskGroup() as tg:
-        tg.create_task(run_server(host, 8082)),
+        tg.create_task(run_server(host, port_handler)),
         tg.create_task(server.serve())
 
 

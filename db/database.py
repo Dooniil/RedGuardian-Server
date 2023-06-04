@@ -48,7 +48,7 @@ class AsyncDatabaseSession:
             with open(path, 'r') as file:
                 self.conn_info = json.loads(file.read())
         except Exception as e:
-            raise DatabaseException(f'Ошибка при чтении конфигурационного файла:\nСообщение: {e.args}')
+            raise DatabaseException(f'Ошибка при чтении конфигурационного файла:\nСообщение: {e}')
 
     async def check_connection(self) -> None:
         try:

@@ -62,7 +62,7 @@ class BehaviorModel:
             result = await async_db_session.execute(stmt)
             instance = result.scalars().one()
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Cтатус': 'Ошибка', 'Сообщение': e}
 
         return instance
 

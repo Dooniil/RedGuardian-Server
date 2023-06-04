@@ -28,12 +28,12 @@ async def update_list_active_scanners():
         'Сообщение': f'Обнаружено активных сканеров: {len(active_scanner)}',
         'ID активных сканнеров': active_scanner}
 
-@scanner_router.get('/in_use/{id}', description='Запрос сделает службу сканирования доступной для работы')
+@scanner_router.put('/in_use/{id}', description='Запрос сделает службу сканирования доступной для работы')
 async def specify_in_use(id: int):
     return await ScannerHandler.specify_scanner(id)
 
 
-@scanner_router.get('/not_in_use/{id}', description='Запрос сделает службу сканирования не доступной для работы')
+@scanner_router.put('/not_in_use/{id}', description='Запрос сделает службу сканирования не доступной для работы')
 async def unspecify_in_use(id: int):
     return await ScannerHandler.unspecify_scanner(id)
 

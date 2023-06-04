@@ -16,7 +16,7 @@ class GroupHandler:
                 group_with_relation.hosts.append(host_instance)
             await GroupHosts.update(group.id, dict(name=name, description=description))
 
-        return {'status': 'Done', 'group_id': group.id}
+        return {'Статус': 'Завершено', 'ID группы': group.id}
     
     @staticmethod
     async def get_group(group_id):
@@ -35,7 +35,7 @@ class GroupHandler:
             instance_dict['hosts'] = host_list
             return instance_dict
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Cтатус': 'Ошибка', 'Сообщение': e}
 
     @staticmethod
     async def update_group(group_id, new_group_info):
@@ -65,18 +65,15 @@ class GroupHandler:
 
             group_dict.pop('hosts') # чтобы обновить без групп
             await GroupHosts.update(group_id, group_dict)
-            return {'status': 'Done'}
+            return {'Статус': 'Завершено'}
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Cтатус': 'Ошибка', 'Сообщение': e}
 
     @staticmethod
     async def delete_group(group_id):
         try:
             await GroupHosts.delete(group_id)
-            return {'status': 'Done'}
+            return {'Статус': 'Завершено'}
         except Exception as e:
-            return {'status': 'Error', 'error_msg': e.args}
+            return {'Cтатус': 'Ошибка', 'Сообщение': e}
         
-    @staticmethod
-    async def create_host_by_hd_result(hd_result):
-        pass
